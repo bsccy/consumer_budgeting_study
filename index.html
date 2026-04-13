@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consumer Budgeting Study</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --danger: #b91c1c;
+      --success: #166534;
+      --warn: #92400e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .app {
+      max-width: 980px;
+      margin: 28px auto;
+      padding: 0 18px 28px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+    }
+    h1, h2, h3 { margin-top: 0; }
+    h1 { font-size: 1.8rem; }
+    h2 { font-size: 1.35rem; }
+    h3 { font-size: 1.05rem; }
+    p, li { font-size: 0.98rem; }
+    .muted { color: var(--muted); }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-top: 22px;
+    }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 0.98rem;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+    }
+    button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+    button.danger {
+      background: var(--danger);
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .notice, .error, .success, .warning {
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin: 12px 0 0;
+      font-size: 0.95rem;
+    }
+    .notice {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+    }
+    .error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: var(--danger);
+    }
+    .success {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: var(--success);
+    }
+    .warning {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: var(--warn);
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .summary-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 18px;
+    }
+    .summary-box .big {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    .field {
+      margin-bottom: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    input[type="number"], textarea, select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.97rem;
+      background: white;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+    th, td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 10px;
+      vertical-align: middle;
+      text-align: left;
+      font-size: 0.94rem;
+    }
+    th {
+      background: #f9fafb;
+    }
+    .rating-cell {
+      min-width: 160px;
+    }
+    .slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .slider-wrap input[type="range"] {
+      width: 100%;
+    }
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #1d4ed8;
+      padding: 4px 10px;
+      font-size: 0.86rem;
+      margin-bottom: 8px;
+    }
+    .footer-meta {
+      margin-top: 12px;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+    .codebox {
+      background: #111827;
+      color: #f9fafb;
+      padding: 12px;
+      border-radius: 12px;
+      font-family: Consolas, monospace;
+      font-size: 0.9rem;
+      overflow-x: auto;
+    }
+    details.backup-tools {
+      margin-top: 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fafafa;
+    }
+    details.backup-tools summary {
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .rating-card {
+      border: 1px solid #dbe2ea;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: #fbfdff;
+    }
+    .rating-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .rating-controls {
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .rating-controls.open {
+      display: block;
+    }
+    .toggle-btn {
+      background: #eef2ff;
+      color: #1f2937;
+      border: 1px solid #c7d2fe;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+    .subtle-list {
+      padding-left: 18px;
+      margin-top: 8px;
+    }
+
+    .radio-group {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .scale-shell {
+      position: relative;
+      padding-top: 4px;
+    }
+    .scale-shell .scale-value {
+      min-width: 120px;
+      font-size: 0.92rem;
+      color: var(--muted);
+      text-align: right;
+    }
+    .scale-shell .scale-prompt {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    input[type="range"].inactive-scale::-webkit-slider-thumb {
+      opacity: 0;
+    }
+    input[type="range"].inactive-scale::-moz-range-thumb {
+      opacity: 0;
+    }
+    input[type="range"].inactive-scale::-ms-thumb {
+      opacity: 0;
+    }
+    @media (max-width: 760px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      th:nth-child(2), td:nth-child(2), th:nth-child(3), td:nth-child(3) { min-width: 130px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    
+    <div id="screen-consent" class="screen active card">
+      <h1>Participant Information and Consent Form</h1>
+      <p>You are invited to take part in a research study about personal budgeting under changing economic conditions. The purpose of this study is to understand how people make budgeting decisions when the prices of consumer goods and services change over time.</p>
+      <p>If you agree to participate, you will be asked to complete an online study that includes a short set of questions and a budgeting task. The study will take approximately 8 to 15 minutes to complete. You will be asked to respond based on your own experience and judgment.</p>
+      <p>Your participation is entirely voluntary. You may choose not to take part, or to withdraw at any time before submitting your responses, without penalty or loss of any benefits to which you are otherwise entitled.</p>
+      <p>There are no anticipated risks beyond those encountered in everyday life. Your responses will be anonymous and confidential. No directly identifying personal information will be collected. All data collected will be used for research purposes only.</p>
+      <p>By clicking “I Agree” below, you confirm that you have read and understood the information above and voluntarily consent to take part in this study.</p>
+      <div class="field">
+        <label><input id="consent-check" type="checkbox" /> I have read and understood the information above and give my consent to take part in this study, with the understanding that my responses will be recorded anonymously for research purposes.</label>
+      </div>
+      <div class="btn-row">
+        <span></span>
+        <button id="to-overview">I Agree</button>
+      </div>
+    </div>
+
+    <div id="screen-overview" class="screen card">
+      <h2>Task Overview</h2>
+      <p>Thank you for taking part in this study.</p>
+      <p>In this task, you will be asked to imagine your own monthly budgeting decisions under a series of simulated economic conditions. In each round, you will see information about the current economic environment and the amount of money available to you for that month. You will then decide how much to allocate to different spending categories.</p>
+      <p>Please answer as realistically as possible, based on how you think you would respond in such a situation. There are no right or wrong answers. We are interested in your personal judgments and decisions.</p>
+      <div class="notice">
+        <strong>Important:</strong> you do not have to allocate all available money. You may leave some money unallocated in your current account if that is what you think you would do.
+      </div>
+      <div class="btn-row">
+        <button class="secondary back-btn" data-back="screen-consent">Back</button>
+        <button id="to-carry-rule">Continue</button>
+      </div>
+    </div>
+
+    <div id="screen-carryrule" class="screen card">
+      <h2>Current account and carry-over rule</h2>
+      <p>Any money you leave unallocated at the end of a round remains in your <strong>current account</strong> and carries over to the next round.</p>
+      <p>In each round, your available budget is:</p>
+      <div class="codebox">Base monthly income + money carried over from the previous round = available budget this round</div>
+      <div class="warning">
+        <strong>Long-term Savings &amp; Investment is locked.</strong><br>
+        Money allocated to this category is treated as committed. It does <strong>not</strong> come back as carry-over in the next round.
+      </div>
+      <p>You may not allocate more than the available budget shown for that round.</p>
+      <div class="btn-row">
+        <button class="secondary back-btn" data-back="screen-overview">Back</button>
+        <button id="to-ratings">Continue to ratings</button>
+      </div>
+    </div>
+
+    
+    <div id="screen-ratings" class="screen card">
+      <h2>Category ratings</h2>
+      <p>Before the budgeting task, please rate each spending category.</p>
+      <div class="notice">
+        Please rate how essential each category is for maintaining a normal monthly standard of living, how easy it would be to reduce for one month if necessary, and the minimum amount that would still be acceptable for one month.
+      </div>
+      <div class="notice">
+        For the Essentialness and Flexibility scales, please click on each scale to activate it before selecting a value. The scale will not show a pre-selected value until you click it.
+      </div>
+      <div id="ratings-body"></div>
+      <div id="ratings-msg"></div>
+      <div class="btn-row">
+        <button class="secondary back-btn" data-back="screen-carryrule">Back</button>
+        <button id="to-taskintro">Continue to budgeting task</button>
+      </div>
+    </div>
+
+    <div id="screen-taskintro" class="screen card">
+      <h2>Budgeting task</h2>
+      <p>In this task, you will complete four monthly budgeting rounds under changing economic conditions.</p>
+      <p><strong>What is inflation?</strong> Inflation refers to a general increase in prices over time. When inflation is higher, the same amount of money may buy fewer goods and services than before. In this task, information about inflation is used to represent changes in the wider economic environment.</p>
+      <p>In each round, you will see information about the current economic environment. You should use this information, together with your own judgment and experience, to decide how you would allocate your money across the spending categories shown.</p>
+      <p>Please think about how you would budget for yourself under each set of conditions. We are interested in how you adjust your budget in response to these changing conditions. There are no right or wrong answers.</p>
+      <ul class="subtle-list">
+        <li>Base monthly income each round: <strong>£5,000</strong></li>
+        <li>Unused money remains in your current account and carries over to the next round</li>
+        <li>Total allocated must not exceed the available budget shown for that round</li>
+      </ul>
+      <div class="btn-row">
+        <button class="secondary back-btn" data-back="screen-ratings">Back</button>
+        <button id="start-round1">Start Round 1</button>
+      </div>
+    </div>
+
+
+    <div id="screen-round" class="screen card">
+      <div class="badge" id="round-badge">Round 1 of 4</div>
+      <h2 id="round-title">Monthly budget allocation</h2>
+      <div class="summary-box">
+        <div class="grid-3">
+          <div>
+            <div class="muted">Base monthly income</div>
+            <div class="big" id="display-baseincome">£5,000</div>
+          </div>
+          <div>
+            <div class="muted">Money carried over from last round</div>
+            <div class="big" id="display-carryin">£0</div>
+          </div>
+          <div>
+            <div class="muted">Available budget this round</div>
+            <div class="big" id="display-available">£5,000</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom: 14px;">
+        <div class="notice">
+          <strong>Current annual inflation rate:</strong> <span id="display-inflation"></span>
+        </div>
+        <div class="notice">
+          <strong>Economic description:</strong> <span id="display-verbal"></span>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Enter allocation (£)</th>
+          </tr>
+        </thead>
+        <tbody id="budget-body"></tbody>
+      </table>
+
+      <div class="summary-box" style="margin-top: 16px;">
+        <div class="grid-3">
+          <div>
+            <div class="muted">Allocated total</div>
+            <div class="big" id="display-total">£0</div>
+          </div>
+          <div>
+            <div class="muted">Remaining in current account</div>
+            <div class="big" id="display-remaining">£5,000</div>
+          </div>
+          <div>
+            <div class="muted">Carry-over to next round</div>
+            <div class="big" id="display-nextcarry">£5,000</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="warning">
+        Long-term Savings &amp; Investment is a committed category. It is part of your allocation total and does not return as carry-over later. Only <strong>unallocated remaining money</strong> in your current account carries over.
+      </div>
+
+      <div id="round-msg"></div>
+      <div class="btn-row">
+        <button class="secondary" id="round-back-btn">Back</button>
+        <button id="round-next-btn">Save round and continue</button>
+      </div>
+      <div class="footer-meta" id="autosave-note"></div>
+    </div>
+
+    
+    <div id="screen-attention" class="screen card">
+      <h2>Attention check</h2>
+      <p>Please indicate which of the following price-change paths you experienced in the budgeting task.</p>
+      <div class="radio-group" id="attention-options">
+        <label><input type="radio" name="path-perception" value="1.5% → 2.1% → 5.1% → 11.1%" /> 1.5% → 2.1% → 5.1% → 11.1%</label>
+        <label><input type="radio" name="path-perception" value="1.5% → 2.3% → 3.0% → 3.8%" /> 1.5% → 2.3% → 3.0% → 3.8%</label>
+        <label><input type="radio" name="path-perception" value="2.3% → 2.0% → 2.0% → 2.2%" /> 2.3% → 2.0% → 2.0% → 2.2%</label>
+        <label><input type="radio" name="path-perception" value="1.5% → 6.1% → 9.5% → 11.1%" /> 1.5% → 6.1% → 9.5% → 11.1%</label>
+      </div>
+      <div id="attention-msg"></div>
+      <div class="btn-row">
+        <button class="secondary" id="attention-back-btn">Back</button>
+        <button id="to-finlit">Continue</button>
+      </div>
+    </div>
+
+    <div id="screen-finlit" class="screen card">
+      <h2>Financial knowledge questions</h2>
+      <p>Please answer the following questions.</p>
+
+      <div class="field">
+        <label>Suppose you had £100 in a savings account and the interest rate was 2% per year. After 5 years, how much do you think you would have in the account if you left the money to grow?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="finlit-q1" value="More than £102" /> More than £102</label>
+          <label><input type="radio" name="finlit-q1" value="Exactly £102" /> Exactly £102</label>
+          <label><input type="radio" name="finlit-q1" value="Less than £102" /> Less than £102</label>
+          <label><input type="radio" name="finlit-q1" value="Do not know" /> Do not know</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Imagine that the interest rate on your savings account was 1% per year and inflation was 2% per year. After 1 year, how much would you be able to buy with the money in this account?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="finlit-q2" value="More than today" /> More than today</label>
+          <label><input type="radio" name="finlit-q2" value="Exactly the same as today" /> Exactly the same as today</label>
+          <label><input type="radio" name="finlit-q2" value="Less than today" /> Less than today</label>
+          <label><input type="radio" name="finlit-q2" value="Do not know" /> Do not know</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Buying a single company stock usually provides a safer return than a stock mutual fund.</label>
+        <div class="radio-group">
+          <label><input type="radio" name="finlit-q3" value="True" /> True</label>
+          <label><input type="radio" name="finlit-q3" value="False" /> False</label>
+          <label><input type="radio" name="finlit-q3" value="Do not know" /> Do not know</label>
+        </div>
+      </div>
+
+      <div id="finlit-msg"></div>
+      <div class="btn-row">
+        <button class="secondary" id="finlit-back-btn">Back</button>
+        <button id="to-demographics">Continue</button>
+      </div>
+    </div>
+
+    <div id="screen-demographics" class="screen card">
+      <h2>About you</h2>
+      <p>Please answer the following questions. This information is collected for research purposes only and will remain anonymous.</p>
+
+      <div class="field">
+        <label for="demo-age">What is your age in years?</label>
+        <input id="demo-age" type="number" min="18" step="1" />
+      </div>
+
+      <div class="field">
+        <label>Your sex is:</label>
+        <div class="radio-group">
+          <label><input type="radio" name="demo-sex" value="Female" /> Female</label>
+          <label><input type="radio" name="demo-sex" value="Male" /> Male</label>
+          <label><input type="radio" name="demo-sex" value="Prefer not to say" /> Prefer not to say</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Your highest level of education completed is:</label>
+        <div class="radio-group">
+          <label><input type="radio" name="demo-education" value="Secondary school or below" /> Secondary school or below</label>
+          <label><input type="radio" name="demo-education" value="College or vocational training" /> College or vocational training</label>
+          <label><input type="radio" name="demo-education" value="Undergraduate degree" /> Undergraduate degree</label>
+          <label><input type="radio" name="demo-education" value="Master’s degree" /> Master’s degree</label>
+          <label><input type="radio" name="demo-education" value="Doctoral degree" /> Doctoral degree</label>
+          <label><input type="radio" name="demo-education" value="Other" /> Other</label>
+          <label><input type="radio" name="demo-education" value="Prefer not to say" /> Prefer not to say</label>
+        </div>
+      </div>
+
+      <div class="field hidden" id="econ-related-wrap">
+        <label>Was your main field of study related to economics, finance, or a closely related subject?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="demo-econrelated" value="Yes" /> Yes</label>
+          <label><input type="radio" name="demo-econrelated" value="No" /> No</label>
+          <label><input type="radio" name="demo-econrelated" value="Not sure" /> Not sure</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Your employment status is:</label>
+        <div class="radio-group">
+          <label><input type="radio" name="demo-employment" value="Student" /> Student</label>
+          <label><input type="radio" name="demo-employment" value="Employed (full-time)" /> Employed (full-time)</label>
+          <label><input type="radio" name="demo-employment" value="Employed (part-time)" /> Employed (part-time)</label>
+          <label><input type="radio" name="demo-employment" value="Unemployed" /> Unemployed</label>
+          <label><input type="radio" name="demo-employment" value="Retired" /> Retired</label>
+          <label><input type="radio" name="demo-employment" value="Other" /> Other</label>
+        </div>
+        <input id="demo-employment-other" class="hidden" type="text" placeholder="Please specify" style="margin-top:10px;" />
+      </div>
+
+      <div class="field">
+        <label for="demo-residence">In which country do you currently live?</label>
+        <input id="demo-residence" type="text" />
+      </div>
+
+      <div class="field">
+        <label for="demo-nationality">What is your nationality?</label>
+        <input id="demo-nationality" type="text" />
+      </div>
+
+      <div class="field">
+        <label>In which country did you spend most of your childhood (ages 0–16)?</label>
+        <div class="radio-group">
+          <label><input type="radio" name="demo-childhood" value="United Kingdom" /> United Kingdom</label>
+          <label><input type="radio" name="demo-childhood" value="Other" /> Other</label>
+        </div>
+        <input id="demo-childhood-other" class="hidden" type="text" placeholder="Please specify" style="margin-top:10px;" />
+      </div>
+
+      <div class="field">
+        <label>Your financial responsibility is:</label>
+        <div class="radio-group">
+          <label><input type="radio" name="demo-finresp" value="Mainly myself" /> Mainly myself</label>
+          <label><input type="radio" name="demo-finresp" value="Shared" /> Shared</label>
+          <label><input type="radio" name="demo-finresp" value="Mainly someone else" /> Mainly someone else</label>
+          <label><input type="radio" name="demo-finresp" value="Other" /> Other</label>
+        </div>
+        <input id="demo-finresp-other" class="hidden" type="text" placeholder="Please specify" style="margin-top:10px;" />
+      </div>
+
+      <div id="demographics-msg"></div>
+      <div class="btn-row">
+        <button class="secondary" id="demographics-back-btn">Back</button>
+        <button id="to-submit-screen">Continue</button>
+      </div>
+    </div>
+
+    <div id="screen-end" class="screen card">
+      <h2>Final submission</h2>
+      <p>You have completed the study questions.</p>
+
+      <div class="summary-box">
+        <h3 style="margin-bottom: 8px;">Submission summary</h3>
+        <div id="summary-text"></div>
+      </div>
+
+      <div class="warning">
+        <strong>Important:</strong> Please do not close this page until you see a confirmation message saying that your responses have been submitted successfully.
+        If the submission is not completed successfully, your responses may not be recorded and this may affect payment for participation.
+      </div>
+
+      <div id="end-msg"></div>
+      <div class="btn-row">
+        <button class="secondary" id="submit-back-btn">Back</button>
+        <button id="submit-datapipe">Submit responses</button>
+        <button class="danger" id="reset-all">Reset local progress</button>
+      </div>
+      <details class="backup-tools">
+        <summary>Technical backup downloads</summary>
+        <p class="muted">These downloads are for testing and troubleshooting only.</p>
+        <div class="btn-row">
+          <button id="download-csv" type="button">Download backup CSV</button>
+          <button class="secondary" id="download-json" type="button">Download backup JSON</button>
+        </div>
+      </details>
+      <div class="footer-meta">
+        Participant ID: <span id="pid-display"></span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+
+    const BASE_INCOME = 5000;
+
+    const DATAPIPE_CONFIG = {
+      experimentID: 'BdOGvwZ3ugQo',
+      endpoint: 'https://pipe.jspsych.org/api/data/',
+      submitCSV: true,
+      submitJSON: false
+    };
+
+    function makeSubmissionStamp() {
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      return `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+    }
+
+    const STORAGE_KEY = 'consumer_budgeting_study_v2';
+    const INFLATION_PATH = [
+      { value: 1.5, label: 'Low and stable inflation' },
+      { value: 2.1, label: 'Inflation is still relatively low but rising' },
+      { value: 5.1, label: 'Inflation has risen sharply and is now clearly high' },
+      { value: 11.1, label: 'Inflation is now extremely high and putting strong pressure on prices' }
+    ];
+    const CATEGORIES = [
+      { key: 'housing', label: 'Housing' },
+      { key: 'food', label: 'Food & Groceries' },
+      { key: 'transport', label: 'Transportation' },
+      { key: 'healthcare', label: 'Healthcare & Insurance' },
+      { key: 'ltsavings', label: 'Long-term Savings & Investment' },
+      { key: 'majorpurch', label: 'Major Purchases' },
+      { key: 'entertainment', label: 'Entertainment & Leisure' }
+    ];
+    const PATH_OPTIONS = [
+      '1.5% → 2.1% → 5.1% → 11.1%',
+      '1.5% → 2.3% → 3.0% → 3.8%',
+      '2.3% → 2.0% → 2.0% → 2.2%',
+      '1.5% → 6.1% → 9.5% → 11.1%'
+    ];
+
+    function makePid() {
+      return 'P' + Math.random().toString(36).slice(2, 10).toUpperCase();
+    }
+
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function buildRoundOrders() {
+      return {
+        1: shuffleArray(CATEGORIES.map(cat => cat.key)),
+        2: shuffleArray(CATEGORIES.map(cat => cat.key)),
+        3: shuffleArray(CATEGORIES.map(cat => cat.key)),
+        4: shuffleArray(CATEGORIES.map(cat => cat.key))
+      };
+    }
+
+    const defaultState = () => ({
+      participant_id: makePid(),
+      consent: false,
+      currentScreen: 'screen-consent',
+      currentRound: 1,
+      ratingsDone: false,
+      ratings: Object.fromEntries(CATEGORIES.map(cat => [cat.key, {
+        essentialness: '',
+        essentialnessActivated: false,
+        flexibility: '',
+        flexibilityActivated: false,
+        minimum: ''
+      }])),
+      rounds: {
+        1: { carryIn: 0, available: BASE_INCOME, inflation: 1.5, allocations: {}, total: 0, leftover: BASE_INCOME },
+        2: { carryIn: 0, available: BASE_INCOME, inflation: 2.1, allocations: {}, total: 0, leftover: BASE_INCOME },
+        3: { carryIn: 0, available: BASE_INCOME, inflation: 5.1, allocations: {}, total: 0, leftover: BASE_INCOME },
+        4: { carryIn: 0, available: BASE_INCOME, inflation: 11.1, allocations: {}, total: 0, leftover: BASE_INCOME }
+      },
+      categoryOrder: buildRoundOrders(),
+      attention: { pathPerception: '' },
+      finlit: { q1: '', q2: '', q3: '' },
+      demographics: {
+        age: '',
+        sex: '',
+        education: '',
+        econRelated: '',
+        employment: '',
+        employmentOther: '',
+        residenceCountry: '',
+        nationality: '',
+        childhoodCountry: '',
+        childhoodCountryOther: '',
+        financialResponsibility: '',
+        financialResponsibilityOther: ''
+      },
+      end: { submitted: false, submissionStamp: '', submittedFiles: [] },
+      lastSaved: ''
+    });
+
+    function migrateState(parsed) {
+      const fresh = defaultState();
+      const merged = { ...fresh, ...parsed };
+      merged.ratings = fresh.ratings;
+      if (parsed.ratings) {
+        Object.keys(fresh.ratings).forEach(key => {
+          merged.ratings[key] = { ...fresh.ratings[key], ...parsed.ratings[key] };
+        });
+      }
+      merged.rounds = fresh.rounds;
+      if (parsed.rounds) {
+        Object.keys(fresh.rounds).forEach(key => {
+          merged.rounds[key] = { ...fresh.rounds[key], ...parsed.rounds[key] };
+        });
+      }
+      merged.categoryOrder = parsed.categoryOrder || buildRoundOrders();
+      merged.attention = { ...fresh.attention, ...(parsed.attention || {}) };
+      merged.finlit = { ...fresh.finlit, ...(parsed.finlit || {}) };
+      merged.demographics = { ...fresh.demographics, ...(parsed.demographics || {}) };
+      merged.end = { ...fresh.end, ...(parsed.end || {}) };
+      return merged;
+    }
+
+    let state = loadState();
+
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultState();
+      try {
+        return migrateState(JSON.parse(raw));
+      } catch (e) {
+        return defaultState();
+      }
+    }
+
+    function saveState() {
+      state.lastSaved = new Date().toLocaleString();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      const note = document.getElementById('autosave-note');
+      if (note) note.textContent = 'Autosaved locally: ' + state.lastSaved;
+    }
+
+    function money(n) {
+      const val = Number(n || 0);
+      return '£' + val.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      state.currentScreen = id;
+      saveState();
+      if (id === 'screen-round') renderRound();
+      if (id === 'screen-attention') renderAttention();
+      if (id === 'screen-finlit') renderFinlit();
+      if (id === 'screen-demographics') renderDemographics();
+      if (id === 'screen-end') renderEnd();
+    }
+
+    function getCategoryByKey(key) {
+      return CATEGORIES.find(cat => cat.key === key);
+    }
+
+    function renderRatings() {
+      const body = document.getElementById('ratings-body');
+      body.innerHTML = '';
+      CATEGORIES.forEach(cat => {
+        const rating = state.ratings[cat.key];
+        const card = document.createElement('div');
+        card.className = 'rating-card';
+        card.innerHTML = `
+          <div class="rating-header">
+            <div><strong>${cat.label}</strong></div>
+          </div>
+          <div class="field">
+            <label>Essentialness</label>
+            <div class="slider-wrap scale-shell">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value="${rating.essentialnessActivated ? rating.essentialness : 50}"
+                data-cat="${cat.key}"
+                data-type="essentialness"
+                class="${rating.essentialnessActivated ? '' : 'inactive-scale'}"
+              />
+              <span id="ess_${cat.key}_value" class="scale-value">${rating.essentialnessActivated ? rating.essentialness : 'Not yet selected'}</span>
+            </div>
+            <div class="muted">0 = not essential at all, 100 = as essential as possible</div>
+            <div class="scale-prompt" id="ess_${cat.key}_prompt">${rating.essentialnessActivated ? '' : 'Click the scale to activate and select a value.'}</div>
+          </div>
+
+          <div class="field">
+            <label>Flexibility</label>
+            <div class="slider-wrap scale-shell">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value="${rating.flexibilityActivated ? rating.flexibility : 50}"
+                data-cat="${cat.key}"
+                data-type="flexibility"
+                class="${rating.flexibilityActivated ? '' : 'inactive-scale'}"
+              />
+              <span id="flex_${cat.key}_value" class="scale-value">${rating.flexibilityActivated ? rating.flexibility : 'Not yet selected'}</span>
+            </div>
+            <div class="muted">0 = not easy to reduce, 100 = very easy to reduce</div>
+            <div class="scale-prompt" id="flex_${cat.key}_prompt">${rating.flexibilityActivated ? '' : 'Click the scale to activate and select a value.'}</div>
+          </div>
+
+          <div class="field">
+            <label>Minimum acceptable monthly spending (£)</label>
+            <input type="number" min="0" step="1" value="${rating.minimum}" data-cat="${cat.key}" data-type="minimum" />
+          </div>
+        `;
+        body.appendChild(card);
+      });
+
+      body.querySelectorAll('input[type="range"]').forEach(input => {
+        const activate = e => {
+          const cat = e.target.dataset.cat;
+          const type = e.target.dataset.type;
+          if (type === 'essentialness') {
+            state.ratings[cat].essentialnessActivated = true;
+            state.ratings[cat].essentialness = e.target.value;
+            e.target.classList.remove('inactive-scale');
+            document.getElementById(`ess_${cat}_value`).textContent = e.target.value;
+            document.getElementById(`ess_${cat}_prompt`).textContent = '';
+          } else {
+            state.ratings[cat].flexibilityActivated = true;
+            state.ratings[cat].flexibility = e.target.value;
+            e.target.classList.remove('inactive-scale');
+            document.getElementById(`flex_${cat}_value`).textContent = e.target.value;
+            document.getElementById(`flex_${cat}_prompt`).textContent = '';
+          }
+          saveState();
+        };
+        input.addEventListener('pointerdown', activate, { once: false });
+        input.addEventListener('input', activate);
+      });
+
+      body.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('input', e => {
+          const cat = e.target.dataset.cat;
+          let value = e.target.value;
+          if (value !== '' && Number(value) < 0) value = '0';
+          e.target.value = value;
+          state.ratings[cat].minimum = value;
+          saveState();
+        });
+      });
+    }
+
+    function validateRatings() {
+      for (const cat of CATEGORIES) {
+        const r = state.ratings[cat.key];
+        if (!r.essentialnessActivated) return `Please select an Essentialness rating for ${cat.label}.`;
+        if (!r.flexibilityActivated) return `Please select a Flexibility rating for ${cat.label}.`;
+        if (r.minimum === '' || Number(r.minimum) < 0) return `Please enter a non-negative minimum acceptable monthly spending value for ${cat.label}.`;
+      }
+      return '';
+    }
+
+    function roundAvailable(roundNum) {
+      if (roundNum === 1) return BASE_INCOME;
+      return BASE_INCOME + Number(state.rounds[roundNum].carryIn || 0);
+    }
+
+    function computeRound(roundNum) {
+      const round = state.rounds[roundNum];
+      round.available = roundAvailable(roundNum);
+      let total = 0;
+      CATEGORIES.forEach(cat => {
+        total += Number(round.allocations[cat.key] || 0);
+      });
+      round.total = total;
+      round.leftover = round.available - round.total;
+      if (roundNum < 4) state.rounds[roundNum + 1].carryIn = Math.max(0, round.leftover);
+    }
+
+    function renderRound() {
+      const roundNum = state.currentRound;
+      const round = state.rounds[roundNum];
+      round.carryIn = roundNum === 1 ? 0 : Number(state.rounds[roundNum].carryIn || 0);
+      computeRound(roundNum);
+
+      document.getElementById('round-badge').textContent = `Round ${roundNum} of 4`;
+      document.getElementById('round-title').textContent = `Monthly budget allocation: Round ${roundNum}`;
+      document.getElementById('display-baseincome').textContent = money(BASE_INCOME);
+      document.getElementById('display-carryin').textContent = money(round.carryIn);
+      document.getElementById('display-available').textContent = money(round.available);
+      document.getElementById('display-inflation').textContent = `${INFLATION_PATH[roundNum - 1].value}%`;
+      document.getElementById('display-verbal').textContent = INFLATION_PATH[roundNum - 1].label;
+
+      const tbody = document.getElementById('budget-body');
+      tbody.innerHTML = '';
+      state.categoryOrder[roundNum].forEach(key => {
+        const cat = getCategoryByKey(key);
+        const val = round.allocations[cat.key] ?? '';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${cat.label}</td>
+          <td><input type="number" min="0" step="1" value="${val}" data-cat="${cat.key}" class="budget-input" placeholder="0" /></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll('.budget-input').forEach(inp => {
+        inp.addEventListener('input', e => {
+          const key = e.target.dataset.cat;
+          let value = e.target.value;
+          if (value !== '' && Number(value) < 0) value = '0';
+          e.target.value = value;
+          state.rounds[roundNum].allocations[key] = value === '' ? '' : Number(value);
+          computeRound(roundNum);
+          updateRoundSummary();
+          saveState();
+        });
+      });
+
+      updateRoundSummary();
+      document.getElementById('round-msg').innerHTML = '';
+      document.getElementById('round-back-btn').textContent = roundNum === 1 ? 'Back to budgeting overview' : `Back to Round ${roundNum - 1}`;
+      document.getElementById('round-next-btn').textContent = roundNum === 4 ? 'Save round and continue' : `Save round and continue to Round ${roundNum + 1}`;
+      const note = document.getElementById('autosave-note');
+      note.textContent = state.lastSaved ? 'Autosaved locally: ' + state.lastSaved : '';
+    }
+
+    function updateRoundSummary() {
+      const roundNum = state.currentRound;
+      const round = state.rounds[roundNum];
+      computeRound(roundNum);
+      document.getElementById('display-total').textContent = money(round.total);
+      document.getElementById('display-remaining').textContent = money(round.leftover);
+      document.getElementById('display-nextcarry').textContent = money(Math.max(0, round.leftover));
+    }
+
+    function validateRound(roundNum) {
+      const round = state.rounds[roundNum];
+      for (const key of state.categoryOrder[roundNum]) {
+        const cat = getCategoryByKey(key);
+        const raw = round.allocations[cat.key];
+        if (raw === '' || raw === undefined || raw === null) return `Please enter an amount for ${cat.label}. Use 0 if you want to allocate nothing.`;
+        if (Number(raw) < 0) return `${cat.label} cannot be negative.`;
+      }
+      computeRound(roundNum);
+      if (round.total > round.available) return 'Your allocated total exceeds the available budget for this round. Please reduce your allocations.';
+      return '';
+    }
+
+    function renderAttention() {
+      document.querySelectorAll('input[name="path-perception"]').forEach(input => {
+        input.checked = input.value === state.attention.pathPerception;
+      });
+      document.getElementById('attention-msg').innerHTML = '';
+    }
+
+    function validateAttention() {
+      return state.attention.pathPerception ? '' : 'Please select the path you think you experienced.';
+    }
+
+    function renderFinlit() {
+      ['q1', 'q2', 'q3'].forEach(q => {
+        document.querySelectorAll(`input[name="finlit-${q}"]`).forEach(input => {
+          input.checked = input.value === state.finlit[q];
+        });
+      });
+      document.getElementById('finlit-msg').innerHTML = '';
+    }
+
+    function validateFinlit() {
+      if (!state.finlit.q1) return 'Please answer Question 1.';
+      if (!state.finlit.q2) return 'Please answer Question 2.';
+      if (!state.finlit.q3) return 'Please answer Question 3.';
+      return '';
+    }
+
+    function requiresEconRelated(education) {
+      return ['Undergraduate degree', 'Master’s degree', 'Doctoral degree'].includes(education);
+    }
+
+    function syncConditionalDemographicVisibility() {
+      const education = state.demographics.education;
+      document.getElementById('econ-related-wrap').classList.toggle('hidden', !requiresEconRelated(education));
+
+      const employmentOther = state.demographics.employment === 'Other';
+      document.getElementById('demo-employment-other').classList.toggle('hidden', !employmentOther);
+
+      const childhoodOther = state.demographics.childhoodCountry === 'Other';
+      document.getElementById('demo-childhood-other').classList.toggle('hidden', !childhoodOther);
+
+      const finOther = state.demographics.financialResponsibility === 'Other';
+      document.getElementById('demo-finresp-other').classList.toggle('hidden', !finOther);
+    }
+
+    function renderDemographics() {
+      document.getElementById('demo-age').value = state.demographics.age;
+      document.querySelectorAll('input[name="demo-sex"]').forEach(input => input.checked = input.value === state.demographics.sex);
+      document.querySelectorAll('input[name="demo-education"]').forEach(input => input.checked = input.value === state.demographics.education);
+      document.querySelectorAll('input[name="demo-econrelated"]').forEach(input => input.checked = input.value === state.demographics.econRelated);
+      document.querySelectorAll('input[name="demo-employment"]').forEach(input => input.checked = input.value === state.demographics.employment);
+      document.getElementById('demo-employment-other').value = state.demographics.employmentOther;
+      document.getElementById('demo-residence').value = state.demographics.residenceCountry;
+      document.getElementById('demo-nationality').value = state.demographics.nationality;
+      document.querySelectorAll('input[name="demo-childhood"]').forEach(input => input.checked = input.value === state.demographics.childhoodCountry);
+      document.getElementById('demo-childhood-other').value = state.demographics.childhoodCountryOther;
+      document.querySelectorAll('input[name="demo-finresp"]').forEach(input => input.checked = input.value === state.demographics.financialResponsibility);
+      document.getElementById('demo-finresp-other').value = state.demographics.financialResponsibilityOther;
+      syncConditionalDemographicVisibility();
+      document.getElementById('demographics-msg').innerHTML = '';
+    }
+
+    function validateDemographics() {
+      const d = state.demographics;
+      if (!d.age || Number(d.age) < 18) return 'Please enter your age in years.';
+      if (!d.sex) return 'Please select your sex.';
+      if (!d.education) return 'Please select your highest level of education completed.';
+      if (requiresEconRelated(d.education) && !d.econRelated) return 'Please indicate whether your main field of study was related to economics, finance, or a closely related subject.';
+      if (!d.employment) return 'Please select your employment status.';
+      if (d.employment === 'Other' && !d.employmentOther.trim()) return 'Please specify your employment status.';
+      if (!d.residenceCountry.trim()) return 'Please enter your current country of residence.';
+      if (!d.nationality.trim()) return 'Please enter your nationality.';
+      if (!d.childhoodCountry) return 'Please indicate where you spent most of your childhood.';
+      if (d.childhoodCountry === 'Other' && !d.childhoodCountryOther.trim()) return 'Please specify the country where you spent most of your childhood.';
+      if (!d.financialResponsibility) return 'Please indicate your financial responsibility.';
+      if (d.financialResponsibility === 'Other' && !d.financialResponsibilityOther.trim()) return 'Please specify your financial responsibility.';
+      return '';
+    }
+
+    function renderEnd() {
+      document.getElementById('pid-display').textContent = state.participant_id;
+      const totals = [1, 2, 3, 4].map(r => `Round ${r}: allocated ${money(state.rounds[r].total)}, leftover ${money(state.rounds[r].leftover)}`);
+      document.getElementById('summary-text').innerHTML = `
+        <p><strong>Participant ID:</strong> ${state.participant_id}</p>
+        <ul>${totals.map(t => `<li>${t}</li>`).join('')}</ul>
+      `;
+      const endMsg = document.getElementById('end-msg');
+      if (state.end.submitted) {
+        endMsg.innerHTML = '<div class="success">Submission succeeded. Your responses have been recorded.</div>';
+      } else {
+        endMsg.innerHTML = '<div class="notice">When you are ready, click “Submit responses”. Please keep the page open until submission finishes.</div>';
+      }
+    }
+
+    function flattenData() {
+      const row = {
+        participant_id: state.participant_id,
+        submitted_at_browser: new Date().toISOString(),
+        user_agent: navigator.userAgent,
+        condition_carryover: 'yes',
+        inflation_path: 'shock',
+        base_income: BASE_INCOME,
+        rating_timing: 'before',
+        budgeting_target: 'participant_personally',
+        long_term_savings_locked: 'yes',
+        attention_path_selected: state.attention.pathPerception,
+        finlit_q1: state.finlit.q1,
+        finlit_q2: state.finlit.q2,
+        finlit_q3: state.finlit.q3,
+        age: state.demographics.age,
+        sex: state.demographics.sex,
+        education: state.demographics.education,
+        econ_related: state.demographics.econRelated,
+        employment: state.demographics.employment,
+        employment_other: state.demographics.employmentOther,
+        residence_country: state.demographics.residenceCountry,
+        nationality: state.demographics.nationality,
+        childhood_country: state.demographics.childhoodCountry,
+        childhood_country_other: state.demographics.childhoodCountryOther,
+        financial_responsibility: state.demographics.financialResponsibility,
+        financial_responsibility_other: state.demographics.financialResponsibilityOther
+      };
+
+      CATEGORIES.forEach(cat => {
+        row[`ess_${cat.key}`] = state.ratings[cat.key].essentialness;
+        row[`flex_${cat.key}`] = state.ratings[cat.key].flexibility;
+        row[`min_${cat.key}`] = state.ratings[cat.key].minimum;
+      });
+
+      [1, 2, 3, 4].forEach(r => {
+        row[`inflation_r${r}`] = INFLATION_PATH[r - 1].value;
+        row[`inflation_label_r${r}`] = INFLATION_PATH[r - 1].label;
+        row[`carryin_r${r}`] = state.rounds[r].carryIn;
+        row[`avail_r${r}`] = state.rounds[r].available;
+        row[`total_r${r}`] = state.rounds[r].total;
+        row[`leftover_r${r}`] = state.rounds[r].leftover;
+        row[`order_r${r}`] = state.categoryOrder[r].join('|');
+        CATEGORIES.forEach(cat => {
+          row[`${cat.key}_r${r}`] = state.rounds[r].allocations[cat.key] ?? '';
+        });
+      });
+
+      return row;
+    }
+
+    function downloadFile(filename, content, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function toCSV(obj) {
+      const headers = Object.keys(obj);
+      const escape = value => {
+        const str = String(value ?? '');
+        if (/[",\n]/.test(str)) return '"' + str.replace(/"/g, '""') + '"';
+        return str;
+      };
+      const values = headers.map(h => escape(obj[h]));
+      return headers.join(',') + '\n' + values.join(',');
+    }
+
+    async function postTextToDataPipe(filename, dataString) {
+      const response = await fetch(DATAPIPE_CONFIG.endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          experimentID: DATAPIPE_CONFIG.experimentID,
+          filename,
+          data: dataString
+        })
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || payload.error) {
+        const message = payload.message || payload.error || `HTTP ${response.status}`;
+        throw new Error(message);
+      }
+      return payload;
+    }
+
+    async function submitToDataPipe() {
+      const endMsg = document.getElementById('end-msg');
+      const submitBtn = document.getElementById('submit-datapipe');
+
+      if (!DATAPIPE_CONFIG.experimentID) {
+        endMsg.innerHTML = '<div class="error">DataPipe experiment ID is missing in the HTML file. Add it in DATAPIPE_CONFIG.experimentID first.</div>';
+        return;
+      }
+      if (state.end.submitted) {
+        endMsg.innerHTML = '<div class="warning">This participant has already been submitted.</div>';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      endMsg.innerHTML = '<div class="notice">Submitting responses. Please do not close this page.</div>';
+
+      try {
+        const flat = flattenData();
+        const csvString = toCSV(flat);
+        const stamp = makeSubmissionStamp();
+        const files = [];
+
+        if (DATAPIPE_CONFIG.submitCSV) {
+          const csvName = `consumer_budgeting_${state.participant_id}_${stamp}.csv`;
+          await postTextToDataPipe(csvName, csvString);
+          files.push(csvName);
+        }
+
+        state.end.submitted = true;
+        state.end.submissionStamp = stamp;
+        state.end.submittedFiles = files;
+        saveState();
+        endMsg.innerHTML = '<div class="success">Submission succeeded. Your responses have been recorded.</div>';
+      } catch (err) {
+        console.error(err);
+        endMsg.innerHTML = `<div class="error">Submission failed: ${err.message}. Please try again, and do not close the page.</div>`;
+        submitBtn.disabled = false;
+        return;
+      }
+    }
+
+    function attachEvents() {
+      document.getElementById('to-overview').addEventListener('click', () => {
+        const ok = document.getElementById('consent-check').checked;
+        if (!ok) return alert('Please tick the consent box to continue.');
+        state.consent = true;
+        saveState();
+        showScreen('screen-overview');
+      });
+
+      document.getElementById('to-carry-rule').addEventListener('click', () => showScreen('screen-carryrule'));
+      document.getElementById('to-ratings').addEventListener('click', () => {
+        renderRatings();
+        showScreen('screen-ratings');
+      });
+
+      document.getElementById('to-taskintro').addEventListener('click', () => {
+        const msg = validateRatings();
+        const box = document.getElementById('ratings-msg');
+        if (msg) {
+          box.innerHTML = `<div class="error">${msg}</div>`;
+          return;
+        }
+        state.ratingsDone = true;
+        saveState();
+        showScreen('screen-taskintro');
+      });
+
+      document.getElementById('start-round1').addEventListener('click', () => {
+        state.currentRound = 1;
+        computeRound(1);
+        saveState();
+        showScreen('screen-round');
+      });
+
+      document.getElementById('round-back-btn').addEventListener('click', () => {
+        if (state.currentRound === 1) {
+          showScreen('screen-taskintro');
+        } else {
+          state.currentRound -= 1;
+          saveState();
+          renderRound();
+        }
+      });
+
+      document.getElementById('round-next-btn').addEventListener('click', () => {
+        const roundNum = state.currentRound;
+        const msg = validateRound(roundNum);
+        const box = document.getElementById('round-msg');
+        if (msg) {
+          box.innerHTML = `<div class="error">${msg}</div>`;
+          return;
+        }
+        box.innerHTML = `<div class="success">Round ${roundNum} saved.</div>`;
+        saveState();
+        if (roundNum < 4) {
+          state.currentRound += 1;
+          computeRound(state.currentRound);
+          saveState();
+          setTimeout(() => renderRound(), 250);
+        } else {
+          showScreen('screen-attention');
+        }
+      });
+
+      document.querySelectorAll('input[name="path-perception"]').forEach(input => {
+        input.addEventListener('change', e => {
+          state.attention.pathPerception = e.target.value;
+          saveState();
+        });
+      });
+
+      document.getElementById('attention-back-btn').addEventListener('click', () => {
+        state.currentRound = 4;
+        showScreen('screen-round');
+      });
+
+      document.getElementById('to-finlit').addEventListener('click', () => {
+        const msg = validateAttention();
+        const box = document.getElementById('attention-msg');
+        if (msg) {
+          box.innerHTML = `<div class="error">${msg}</div>`;
+          return;
+        }
+        showScreen('screen-finlit');
+      });
+
+      ['q1', 'q2', 'q3'].forEach(q => {
+        document.querySelectorAll(`input[name="finlit-${q}"]`).forEach(input => {
+          input.addEventListener('change', e => {
+            state.finlit[q] = e.target.value;
+            saveState();
+          });
+        });
+      });
+
+      document.getElementById('finlit-back-btn').addEventListener('click', () => showScreen('screen-attention'));
+
+      document.getElementById('to-demographics').addEventListener('click', () => {
+        const msg = validateFinlit();
+        const box = document.getElementById('finlit-msg');
+        if (msg) {
+          box.innerHTML = `<div class="error">${msg}</div>`;
+          return;
+        }
+        showScreen('screen-demographics');
+      });
+
+      document.getElementById('demo-age').addEventListener('input', e => {
+        state.demographics.age = e.target.value;
+        saveState();
+      });
+      document.querySelectorAll('input[name="demo-sex"]').forEach(input => {
+        input.addEventListener('change', e => {
+          state.demographics.sex = e.target.value;
+          saveState();
+        });
+      });
+      document.querySelectorAll('input[name="demo-education"]').forEach(input => {
+        input.addEventListener('change', e => {
+          state.demographics.education = e.target.value;
+          if (!requiresEconRelated(e.target.value)) state.demographics.econRelated = '';
+          syncConditionalDemographicVisibility();
+          saveState();
+        });
+      });
+      document.querySelectorAll('input[name="demo-econrelated"]').forEach(input => {
+        input.addEventListener('change', e => {
+          state.demographics.econRelated = e.target.value;
+          saveState();
+        });
+      });
+      document.querySelectorAll('input[name="demo-employment"]').forEach(input => {
+        input.addEventListener('change', e => {
+          state.demographics.employment = e.target.value;
+          if (e.target.value !== 'Other') state.demographics.employmentOther = '';
+          syncConditionalDemographicVisibility();
+          saveState();
+        });
+      });
+      document.getElementById('demo-employment-other').addEventListener('input', e => {
+        state.demographics.employmentOther = e.target.value;
+        saveState();
+      });
+      document.getElementById('demo-residence').addEventListener('input', e => {
+        state.demographics.residenceCountry = e.target.value;
+        saveState();
+      });
+      document.getElementById('demo-nationality').addEventListener('input', e => {
+        state.demographics.nationality = e.target.value;
+        saveState();
+      });
+      document.querySelectorAll('input[name="demo-childhood"]').forEach(input => {
+        input.addEventListener('change', e => {
+          state.demographics.childhoodCountry = e.target.value;
+          if (e.target.value !== 'Other') state.demographics.childhoodCountryOther = '';
+          syncConditionalDemographicVisibility();
+          saveState();
+        });
+      });
+      document.getElementById('demo-childhood-other').addEventListener('input', e => {
+        state.demographics.childhoodCountryOther = e.target.value;
+        saveState();
+      });
+      document.querySelectorAll('input[name="demo-finresp"]').forEach(input => {
+        input.addEventListener('change', e => {
+          state.demographics.financialResponsibility = e.target.value;
+          if (e.target.value !== 'Other') state.demographics.financialResponsibilityOther = '';
+          syncConditionalDemographicVisibility();
+          saveState();
+        });
+      });
+      document.getElementById('demo-finresp-other').addEventListener('input', e => {
+        state.demographics.financialResponsibilityOther = e.target.value;
+        saveState();
+      });
+
+      document.getElementById('demographics-back-btn').addEventListener('click', () => showScreen('screen-finlit'));
+
+      document.getElementById('to-submit-screen').addEventListener('click', () => {
+        const msg = validateDemographics();
+        const box = document.getElementById('demographics-msg');
+        if (msg) {
+          box.innerHTML = `<div class="error">${msg}</div>`;
+          return;
+        }
+        showScreen('screen-end');
+      });
+
+      document.getElementById('submit-back-btn').addEventListener('click', () => showScreen('screen-demographics'));
+
+      document.getElementById('submit-datapipe').addEventListener('click', submitToDataPipe);
+
+      document.getElementById('download-csv').addEventListener('click', () => {
+        const row = flattenData();
+        downloadFile(`consumer_budgeting_${state.participant_id}.csv`, toCSV(row), 'text/csv;charset=utf-8;');
+        document.getElementById('end-msg').innerHTML = '<div class="success">Backup CSV downloaded.</div>';
+      });
+
+      document.getElementById('download-json').addEventListener('click', () => {
+        downloadFile(`consumer_budgeting_${state.participant_id}.json`, JSON.stringify(state, null, 2), 'application/json;charset=utf-8;');
+        document.getElementById('end-msg').innerHTML = '<div class="success">Backup JSON downloaded.</div>';
+      });
+
+      document.getElementById('reset-all').addEventListener('click', () => {
+        const sure = confirm('This will erase locally saved progress in this browser for this study. Continue?');
+        if (!sure) return;
+        localStorage.removeItem(STORAGE_KEY);
+        state = defaultState();
+        document.getElementById('consent-check').checked = false;
+        renderRatings();
+        showScreen('screen-consent');
+      });
+
+      document.querySelectorAll('.back-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+          const target = e.currentTarget.dataset.back;
+          if (target === 'screen-ratings') renderRatings();
+          showScreen(target);
+        });
+      });
+    }
+
+    function restore() {
+      document.getElementById('consent-check').checked = !!state.consent;
+      renderRatings();
+      if (document.getElementById(state.currentScreen)) {
+        showScreen(state.currentScreen);
+      } else {
+        showScreen('screen-consent');
+      }
+    }
+
+    attachEvents();
+    restore();
+
+  </script>
+</body>
+</html>
