@@ -267,6 +267,45 @@
     input[type="range"].inactive-scale::-ms-thumb {
       opacity: 0;
     }
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #d1d5db;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .pulse-focus {
+      animation: pulseFocus 1.3s ease-in-out infinite;
+    }
+    @keyframes pulseFocus {
+      0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.28); }
+      70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+    }
+    .disabled-section {
+      opacity: 0.55;
+      pointer-events: none;
+    }
     @media (max-width: 760px) {
       .grid-2, .grid-3 { grid-template-columns: 1fr; }
       th:nth-child(2), td:nth-child(2), th:nth-child(3), td:nth-child(3) { min-width: 130px; }
@@ -295,7 +334,7 @@
     <div id="screen-overview" class="screen card">
       <h2>Task Overview</h2>
       <p>Thank you for taking part in this study.</p>
-      <p>In this task, you will be asked to imagine your own monthly budgeting decisions under a series of simulated economic conditions. In each round, you will see information about the current economic environment and the amount of money available to you for that month. You will then decide how much to allocate to different spending categories.</p>
+      <p>In this task, you will be asked to imagine your own monthly budgeting decisions under a series of simulated economic conditions. In each month, you will see information about the current economic environment and the amount of money available to you for that month. You will then decide how much to allocate to different spending categories.</p>
       <p>Please answer as realistically as possible, based on how you think you would respond in such a situation. There are no right or wrong answers. We are interested in your personal judgments and decisions.</p>
       <div class="notice">
         <strong>Important:</strong> you do not have to allocate all available money. You may leave some money unallocated in your current account if that is what you think you would do.
@@ -308,14 +347,14 @@
 
     <div id="screen-carryrule" class="screen card">
       <h2>Current account and carry-over rule</h2>
-      <p>Any money you leave unallocated at the end of a round remains in your <strong>current account</strong> and carries over to the next round.</p>
-      <p>In each round, your available budget is:</p>
-      <div class="codebox">Base monthly income + money carried over from the previous round = available budget this round</div>
+      <p>Any money you leave unallocated at the end of a month remains in your <strong>current account</strong> and carries over to the next month.</p>
+      <p>In each month, your available budget is:</p>
+      <div class="codebox">Base monthly income + money carried over from the previous month = available budget this month</div>
       <div class="warning">
         <strong>Long-term Savings &amp; Investment is locked.</strong><br>
         Money allocated to this category is treated as committed. It does <strong>not</strong> come back as carry-over in the next round.
       </div>
-      <p>You may not allocate more than the available budget shown for that round.</p>
+      <p>You must follow the budget rule shown for that month.</p>
       <div class="btn-row">
         <button class="secondary back-btn" data-back="screen-overview">Back</button>
         <button id="to-ratings">Continue to ratings</button>
@@ -325,9 +364,9 @@
     
     <div id="screen-ratings" class="screen card">
       <h2>Category ratings</h2>
-      <p>Before the budgeting task, please rate each spending category.</p>
+      <p id="ratings-intro-text">Please rate each spending category.</p>
       <div class="notice">
-        Please rate how essential each category is for maintaining a normal monthly standard of living, how easy it would be to reduce for one month if necessary, and the minimum amount that would still be acceptable for one month.
+        Please rate how essential each category is for maintaining a normal monthly standard of living, how easy it would be to reduce for one month if necessary, and the minimum amount that would still be acceptable for one month for you personally, based on your own experience of living in your current location.
       </div>
       <div class="notice">
         For the Essentialness and Flexibility scales, please click on each scale to activate it before selecting a value. The scale will not show a pre-selected value until you click it.
@@ -335,58 +374,66 @@
       <div id="ratings-body"></div>
       <div id="ratings-msg"></div>
       <div class="btn-row">
-        <button class="secondary back-btn" data-back="screen-carryrule">Back</button>
-        <button id="to-taskintro">Continue to budgeting task</button>
+        <button class="secondary back-btn" id="ratings-back-btn" data-back="screen-carryrule">Back</button>
+        <button id="to-taskintro">Continue</button>
       </div>
     </div>
 
     <div id="screen-taskintro" class="screen card">
       <h2>Budgeting task</h2>
-      <p>In this task, you will complete four monthly budgeting rounds under changing economic conditions.</p>
+      <p>In this task, you will complete four monthly budgeting periods. Each period represents one month.</p>
       <p><strong>What is inflation?</strong> Inflation refers to a general increase in prices over time. When inflation is higher, the same amount of money may buy fewer goods and services than before. In this task, information about inflation is used to represent changes in the wider economic environment.</p>
-      <p>In each round, you will see information about the current economic environment. You should use this information, together with your own judgment and experience, to decide how you would allocate your money across the spending categories shown.</p>
+      <p>At the start of each month, you will first see information about current inflation for that month. You will then estimate what you think inflation will be next month before deciding how to allocate your money across the spending categories shown.</p>
       <p>Please think about how you would budget for yourself under each set of conditions. We are interested in how you adjust your budget in response to these changing conditions. There are no right or wrong answers.</p>
       <ul class="subtle-list">
-        <li>Base monthly income each round: <strong>£5,000</strong></li>
+        <li>Base monthly income each round: <strong>£3,000</strong></li>
         <li>Unused money remains in your current account and carries over to the next round</li>
         <li>Total allocated must not exceed the available budget shown for that round</li>
       </ul>
       <div class="btn-row">
-        <button class="secondary back-btn" data-back="screen-ratings">Back</button>
-        <button id="start-round1">Start Round 1</button>
+        <button class="secondary back-btn" data-back="screen-carryrule">Back</button>
+        <button id="start-round1">Start Month 1</button>
       </div>
     </div>
 
 
     <div id="screen-round" class="screen card">
-      <div class="badge" id="round-badge">Round 1 of 4</div>
+      <div class="badge" id="round-badge">Month 1 of 4</div>
       <h2 id="round-title">Monthly budget allocation</h2>
       <div class="summary-box">
         <div class="grid-3">
           <div>
             <div class="muted">Base monthly income</div>
-            <div class="big" id="display-baseincome">£5,000</div>
+            <div class="big" id="display-baseincome">£3,000</div>
           </div>
           <div>
-            <div class="muted">Money carried over from last round</div>
+            <div class="muted">Money carried over from last month</div>
             <div class="big" id="display-carryin">£0</div>
           </div>
           <div>
-            <div class="muted">Available budget this round</div>
-            <div class="big" id="display-available">£5,000</div>
+            <div class="muted">Available budget this month</div>
+            <div class="big" id="display-available">£3,000</div>
           </div>
         </div>
       </div>
 
       <div class="grid-2" style="margin-bottom: 14px;">
-        <div class="notice">
-          <strong>Current annual inflation rate:</strong> <span id="display-inflation"></span>
+        <div class="notice pulse-focus" id="current-inflation-panel">
+          <strong>Current annual inflation rate for this month:</strong> <span id="display-inflation"></span>
         </div>
         <div class="notice">
-          <strong>Economic description:</strong> <span id="display-verbal"></span>
+          <strong>Economic description for this month:</strong> <span id="display-verbal"></span>
         </div>
       </div>
 
+      <div class="field">
+        <label for="next-inflation-estimate">Before setting your budget for this month, please estimate what you think annual inflation will be next month.</label>
+        <input id="next-inflation-estimate" type="number" step="0.1" placeholder="Enter your estimate" />
+        <div class="muted">There are no right or wrong answers. Please use your own judgement.</div>
+      </div>
+      <div id="next-inflation-msg"></div>
+
+      <div id="budget-entry-wrap">
       <table>
         <thead>
           <tr>
@@ -404,12 +451,12 @@
             <div class="big" id="display-total">£0</div>
           </div>
           <div>
-            <div class="muted">Remaining in current account</div>
-            <div class="big" id="display-remaining">£5,000</div>
+            <div class="muted">Remaining / still to allocate this month</div>
+            <div class="big" id="display-remaining">£3,000</div>
           </div>
           <div>
-            <div class="muted">Carry-over to next round</div>
-            <div class="big" id="display-nextcarry">£5,000</div>
+            <div class="muted">Carry-over to next month</div>
+            <div class="big" id="display-nextcarry">£3,000</div>
           </div>
         </div>
       </div>
@@ -417,11 +464,11 @@
       <div class="warning">
         Long-term Savings &amp; Investment is a committed category. It is part of your allocation total and does not return as carry-over later. Only <strong>unallocated remaining money</strong> in your current account carries over.
       </div>
+      </div>
 
       <div id="round-msg"></div>
       <div class="btn-row">
-        <button class="secondary" id="round-back-btn">Back</button>
-        <button id="round-next-btn">Save round and continue</button>
+        <button id="round-next-btn">Save month and continue</button>
       </div>
       <div class="footer-meta" id="autosave-note"></div>
     </div>
@@ -429,13 +476,8 @@
     
     <div id="screen-attention" class="screen card">
       <h2>Attention check</h2>
-      <p>Please indicate which of the following price-change paths you experienced in the budgeting task.</p>
-      <div class="radio-group" id="attention-options">
-        <label><input type="radio" name="path-perception" value="1.5% → 2.1% → 5.1% → 11.1%" /> 1.5% → 2.1% → 5.1% → 11.1%</label>
-        <label><input type="radio" name="path-perception" value="1.5% → 2.3% → 3.0% → 3.8%" /> 1.5% → 2.3% → 3.0% → 3.8%</label>
-        <label><input type="radio" name="path-perception" value="2.3% → 2.0% → 2.0% → 2.2%" /> 2.3% → 2.0% → 2.0% → 2.2%</label>
-        <label><input type="radio" name="path-perception" value="1.5% → 6.1% → 9.5% → 11.1%" /> 1.5% → 6.1% → 9.5% → 11.1%</label>
-      </div>
+      <p>Please indicate which of the following inflation paths you experienced across the four months of the budgeting task.</p>
+      <div class="radio-group" id="attention-options"></div>
       <div id="attention-msg"></div>
       <div class="btn-row">
         <button class="secondary" id="attention-back-btn">Back</button>
@@ -493,11 +535,11 @@
       </div>
 
       <div class="field">
-        <label>Your sex is:</label>
+        <label>Your gender is:</label>
         <div class="radio-group">
-          <label><input type="radio" name="demo-sex" value="Female" /> Female</label>
-          <label><input type="radio" name="demo-sex" value="Male" /> Male</label>
-          <label><input type="radio" name="demo-sex" value="Prefer not to say" /> Prefer not to say</label>
+          <label><input type="radio" name="demo-gender" value="Female" /> Female</label>
+          <label><input type="radio" name="demo-gender" value="Male" /> Male</label>
+          <label><input type="radio" name="demo-gender" value="Prefer not to say" /> Prefer not to say</label>
         </div>
       </div>
 
@@ -537,6 +579,16 @@
       </div>
 
       <div class="field">
+        <label>Please click one of the following to indicate whether you consider that, relative to other people in the UK, your personal annual income is:</label>
+        <div class="radio-group">
+          <label><input type="radio" name="demo-income-relative-uk" value="Bottom third" /> In the bottom third</label>
+          <label><input type="radio" name="demo-income-relative-uk" value="Middle third" /> In the middle third</label>
+          <label><input type="radio" name="demo-income-relative-uk" value="Top third" /> In the top third</label>
+          <label><input type="radio" name="demo-income-relative-uk" value="Prefer not to say" /> Prefer not to say</label>
+        </div>
+      </div>
+
+      <div class="field">
         <label for="demo-residence">In which country do you currently live?</label>
         <input id="demo-residence" type="text" />
       </div>
@@ -566,6 +618,15 @@
         <input id="demo-finresp-other" class="hidden" type="text" placeholder="Please specify" style="margin-top:10px;" />
       </div>
 
+      <div class="field">
+        <label>The Bank of England has a target rate of inflation. Its policies aim to ensure that inflation is as close as possible to this target. Please tell us what you think this target rate currently is (%).</label>
+        <div class="radio-group">
+          <label><input type="radio" name="boe-target-response" value="Estimate" /> I want to provide an estimate</label>
+          <label><input type="radio" name="boe-target-response" value="Do not know" /> I do not know</label>
+        </div>
+        <input id="boe-target-estimate" class="hidden" type="number" step="0.1" placeholder="Enter a percentage" style="margin-top:10px;" />
+      </div>
+
       <div id="demographics-msg"></div>
       <div class="btn-row">
         <button class="secondary" id="demographics-back-btn">Back</button>
@@ -591,16 +652,10 @@
       <div class="btn-row">
         <button class="secondary" id="submit-back-btn">Back</button>
         <button id="submit-datapipe">Submit responses</button>
-        <button class="danger" id="reset-all">Reset local progress</button>
       </div>
-      <details class="backup-tools">
-        <summary>Technical backup downloads</summary>
-        <p class="muted">These downloads are for testing and troubleshooting only.</p>
-        <div class="btn-row">
-          <button id="download-csv" type="button">Download backup CSV</button>
-          <button class="secondary" id="download-json" type="button">Download backup JSON</button>
-        </div>
-      </details>
+      <div class="footer-meta">
+        Your responses are also autosaved locally in this browser until successful submission.
+      </div>
       <div class="footer-meta">
         Participant ID: <span id="pid-display"></span>
       </div>
@@ -610,7 +665,7 @@
 
   <script>
 
-    const BASE_INCOME = 5000;
+    const BASE_INCOME = 3000;
 
     const DATAPIPE_CONFIG = {
       experimentID: 'BdOGvwZ3ugQo',
@@ -625,13 +680,80 @@
       return `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
     }
 
-    const STORAGE_KEY = 'consumer_budgeting_study_v2';
-    const INFLATION_PATH = [
-      { value: 1.5, label: 'Low and stable inflation' },
-      { value: 2.1, label: 'Inflation is still relatively low but rising' },
-      { value: 5.1, label: 'Inflation has risen sharply and is now clearly high' },
-      { value: 11.1, label: 'Inflation is now extremely high and putting strong pressure on prices' }
-    ];
+    const STORAGE_KEY = 'consumer_budgeting_study_v7';
+    const CONDITION_COUNTER_KEY = 'consumer_budgeting_main_condition_counts_v4';
+    const RATING_COUNTER_KEY = 'consumer_budgeting_rating_counts_v1';
+    const RATING_TIMINGS = ['before', 'after'];
+    const NO_CARRYOVER_FORCE_FULL_ALLOCATION = true;
+
+    const PATH_KEYS = ['stable_target', 'gradual_rise', 'accelerating_shock', 'decelerating_shock'];
+
+    const INFLATION_PATHS = {
+      stable_target: {
+        key: 'stable_target',
+        name: 'Stable-target path',
+        values: [
+          { value: 2.3, label: 'Inflation is low and broadly stable.' },
+          { value: 2.1, label: 'Inflation is stable and predictable.' },
+          { value: 2.0, label: 'Inflation remains stable and predictable.' },
+          { value: 2.2, label: 'Inflation is still low and relatively stable.' }
+        ]
+      },
+      gradual_rise: {
+        key: 'gradual_rise',
+        name: 'Gradual-rise path',
+        values: [
+          { value: 1.5, label: 'Inflation is low and broadly manageable.' },
+          { value: 2.3, label: 'Inflation has edged up but remains fairly contained.' },
+          { value: 3.0, label: 'Prices are continuing to rise and the pressure is becoming clearer.' },
+          { value: 3.8, label: 'Inflation is moderately elevated and is making budgeting harder.' }
+        ]
+      },
+      accelerating_shock: {
+        key: 'accelerating_shock',
+        name: 'Accelerating-shock path',
+        values: [
+          { value: 1.5, label: 'Inflation is low at first, but risks are building.' },
+          { value: 2.1, label: 'Inflation is rising and price increases are becoming more noticeable.' },
+          { value: 5.1, label: 'Inflation has risen sharply and is now clearly high.' },
+          { value: 11.1, label: 'Inflation is now extremely high and putting strong pressure on prices.' }
+        ]
+      },
+      decelerating_shock: {
+        key: 'decelerating_shock',
+        name: 'Decelerating-shock path',
+        values: [
+          { value: 1.5, label: 'Inflation starts low.' },
+          { value: 6.1, label: 'Inflation has jumped sharply and is now very high.' },
+          { value: 9.5, label: 'Inflation remains extremely high, though the increases are becoming less abrupt.' },
+          { value: 11.1, label: 'Inflation is still extremely high and continues to strain household budgets.' }
+        ]
+      }
+    };
+
+    const PATH_DISPLAY_STRINGS = Object.fromEntries(
+      PATH_KEYS.map(key => [
+        key,
+        INFLATION_PATHS[key].values.map(v => `${v.value}%`).join(' → ')
+      ])
+    );
+
+    const PATH_OPTIONS = PATH_KEYS.map(key => PATH_DISPLAY_STRINGS[key]);
+
+    const CONDITION_SETS = (() => {
+      const cells = [];
+      ['yes', 'no'].forEach(carryover => {
+        PATH_KEYS.forEach(pathKey => {
+          cells.push({
+            id: `${carryover}_${pathKey}`,
+            carryover,
+            pathKey
+          });
+        });
+      });
+      return cells;
+    })();
+
     const CATEGORIES = [
       { key: 'housing', label: 'Housing' },
       { key: 'food', label: 'Food & Groceries' },
@@ -641,15 +763,53 @@
       { key: 'majorpurch', label: 'Major Purchases' },
       { key: 'entertainment', label: 'Entertainment & Leisure' }
     ];
-    const PATH_OPTIONS = [
-      '1.5% → 2.1% → 5.1% → 11.1%',
-      '1.5% → 2.3% → 3.0% → 3.8%',
-      '2.3% → 2.0% → 2.0% → 2.2%',
-      '1.5% → 6.1% → 9.5% → 11.1%'
-    ];
 
     function makePid() {
       return 'P' + Math.random().toString(36).slice(2, 10).toUpperCase();
+    }
+
+    function getURLParamAny(params, names) {
+      for (const name of names) {
+        const exact = params.get(name);
+        if (exact !== null) return exact.trim();
+      }
+      const lowerMap = {};
+      for (const [key, value] of params.entries()) {
+        lowerMap[key.toLowerCase()] = value;
+      }
+      for (const name of names) {
+        const matched = lowerMap[name.toLowerCase()];
+        if (matched !== undefined) return String(matched).trim();
+      }
+      return '';
+    }
+
+    function getURLStudyMetadata() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        prolific_pid: getURLParamAny(params, ['PROLIFIC_PID', 'prolific_pid']),
+        study_id: getURLParamAny(params, ['STUDY_ID', 'study_id']),
+        session_id: getURLParamAny(params, ['SESSION_ID', 'session_id'])
+      };
+    }
+
+    function makeParticipantMetadata(saved = {}) {
+      const urlMetadata = getURLStudyMetadata();
+      const prolificPid = urlMetadata.prolific_pid || saved.prolific_pid || '';
+      const generatedParticipantId = saved.generated_participant_id
+        || (saved.participant_id_source === 'generated_local' ? saved.participant_id : '')
+        || makePid();
+
+      return {
+        participant_id: prolificPid || generatedParticipantId,
+        participant_id_source: prolificPid
+          ? (urlMetadata.prolific_pid ? 'prolific_url_parameter' : 'saved_prolific_pid')
+          : 'generated_local',
+        prolific_pid: prolificPid,
+        study_id: urlMetadata.study_id || saved.study_id || '',
+        session_id: urlMetadata.session_id || saved.session_id || '',
+        generated_participant_id: generatedParticipantId
+      };
     }
 
     function shuffleArray(arr) {
@@ -670,8 +830,195 @@
       };
     }
 
-    const defaultState = () => ({
-      participant_id: makePid(),
+
+    function pickBalancedRatingTimingLocal() {
+      let counts = {};
+      try {
+        counts = JSON.parse(localStorage.getItem(RATING_COUNTER_KEY) || '{}');
+      } catch (e) {
+        counts = {};
+      }
+
+      const minCount = Math.min(...RATING_TIMINGS.map(t => Number(counts[t] || 0)));
+      const leastUsed = RATING_TIMINGS.filter(t => Number(counts[t] || 0) === minCount);
+      const chosen = leastUsed[Math.floor(Math.random() * leastUsed.length)];
+      counts[chosen] = Number(counts[chosen] || 0) + 1;
+      localStorage.setItem(RATING_COUNTER_KEY, JSON.stringify(counts));
+      return chosen;
+    }
+
+    function normaliseCarryoverParam(raw) {
+      const aliases = {
+        yes: 'yes',
+        carryover: 'yes',
+        carry_over: 'yes',
+        1: 'yes',
+        true: 'yes',
+        no: 'no',
+        no_carryover: 'no',
+        no_carry_over: 'no',
+        0: 'no',
+        false: 'no'
+      };
+      return aliases[String(raw || '').trim().toLowerCase()] || null;
+    }
+
+    function normalisePathParam(raw) {
+      const aliases = {
+        stable_target: 'stable_target',
+        stable: 'stable_target',
+        low_stable: 'stable_target',
+        gradual_rise: 'gradual_rise',
+        gradual: 'gradual_rise',
+        accelerating_shock: 'accelerating_shock',
+        acceleration_shock: 'accelerating_shock',
+        shock: 'accelerating_shock',
+        decelerating_shock: 'decelerating_shock',
+        deceleration_shock: 'decelerating_shock',
+        decelerating: 'decelerating_shock',
+        decelerated: 'decelerating_shock',
+        accelerated: 'accelerating_shock'
+      };
+      return aliases[String(raw || '').trim().toLowerCase()] || null;
+    }
+
+    function makeCondition(carryover, pathKey, ratingTiming, source) {
+      return {
+        id: `${carryover}_${pathKey}`,
+        carryover,
+        pathKey,
+        ratingTiming: ratingTiming || pickBalancedRatingTimingLocal(),
+        source
+      };
+    }
+
+    function getURLConditionOverrides() {
+      const params = new URLSearchParams(window.location.search);
+      const explicitTiming = params.get('ratingTiming');
+      const timing = RATING_TIMINGS.includes(explicitTiming) ? explicitTiming : null;
+
+      const conditionId = params.get('condition_id');
+      if (conditionId) {
+        const parts = conditionId.match(/^(yes|no)_(.+)$/);
+        if (parts) {
+          const carryover = normaliseCarryoverParam(parts[1]);
+          const pathKey = normalisePathParam(parts[2]);
+          if (carryover && pathKey) {
+            return makeCondition(carryover, pathKey, timing, 'url_condition_id');
+          }
+        }
+      }
+
+      const carryover = normaliseCarryoverParam(params.get('carryover'));
+      const pathKey = normalisePathParam(params.get('path'));
+      if (carryover && pathKey) {
+        return makeCondition(carryover, pathKey, timing, 'url_parameters');
+      }
+
+      return null;
+    }
+
+    function pickBalancedConditionLocal() {
+      let counts = {};
+      try {
+        counts = JSON.parse(localStorage.getItem(CONDITION_COUNTER_KEY) || '{}');
+      } catch (e) {
+        counts = {};
+      }
+
+      const minCount = Math.min(...CONDITION_SETS.map(c => Number(counts[c.id] || 0)));
+      const leastUsed = CONDITION_SETS.filter(c => Number(counts[c.id] || 0) === minCount);
+      const chosen = leastUsed[Math.floor(Math.random() * leastUsed.length)];
+      counts[chosen.id] = Number(counts[chosen.id] || 0) + 1;
+      localStorage.setItem(CONDITION_COUNTER_KEY, JSON.stringify(counts));
+      return { ...chosen, source: 'browser_local_balanced_fallback' };
+    }
+
+    function assignCondition() {
+      const urlAssigned = getURLConditionOverrides();
+      if (urlAssigned) return urlAssigned;
+      const mainCell = pickBalancedConditionLocal();
+      return { ...mainCell, ratingTiming: pickBalancedRatingTimingLocal() };
+    }
+
+    function getCondition() {
+      return state.condition;
+    }
+
+    function getCurrentPath() {
+      return INFLATION_PATHS[getCondition().pathKey];
+    }
+
+    function currentCarryoverEnabled() {
+      return getCondition().carryover === 'yes';
+    }
+
+    function ratingsComeBeforeTask() {
+      return getCondition().ratingTiming === 'before';
+    }
+
+    function buildRoundsForCondition(condition) {
+      const path = INFLATION_PATHS[condition.pathKey].values;
+      return {
+        1: { carryIn: 0, available: BASE_INCOME, inflation: path[0].value, allocations: {}, total: 0, leftover: BASE_INCOME },
+        2: { carryIn: 0, available: BASE_INCOME, inflation: path[1].value, allocations: {}, total: 0, leftover: BASE_INCOME },
+        3: { carryIn: 0, available: BASE_INCOME, inflation: path[2].value, allocations: {}, total: 0, leftover: BASE_INCOME },
+        4: { carryIn: 0, available: BASE_INCOME, inflation: path[3].value, allocations: {}, total: 0, leftover: BASE_INCOME }
+      };
+    }
+
+    function updateConditionTexts() {
+      const carryRuleTitle = document.querySelector('#screen-carryrule h2');
+      const carryRuleParagraphs = document.querySelectorAll('#screen-carryrule p');
+      const carryRuleCode = document.querySelector('#screen-carryrule .codebox');
+      const overviewNotice = document.querySelector('#screen-overview .notice');
+      const taskIntroList = document.querySelector('#screen-taskintro .subtle-list');
+      const roundWarning = document.querySelector('#screen-round .warning');
+      const ratingHeading = document.querySelector('#screen-ratings h2');
+      const ratingsIntro = document.getElementById('ratings-intro-text');
+      const ratingsButton = document.getElementById('to-taskintro');
+      const ratingsBackBtn = document.getElementById('ratings-back-btn');
+
+      ratingHeading.textContent = ratingsComeBeforeTask() ? 'Category ratings' : 'Category ratings after budgeting';
+      if (ratingsIntro) ratingsIntro.textContent = ratingsComeBeforeTask() ? 'Before the budgeting task, please rate each spending category.' : 'After completing the four monthly budgeting periods, please rate each spending category.';
+      if (ratingsButton) ratingsButton.textContent = ratingsComeBeforeTask() ? 'Continue to budgeting task' : 'Continue';
+      if (ratingsBackBtn) ratingsBackBtn.classList.toggle('hidden', !ratingsComeBeforeTask());
+
+      overviewNotice.innerHTML = currentCarryoverEnabled()
+        ? '<strong>Important:</strong> In this version, you may leave some money unallocated at the end of a month. Any money left in your current account carries over to the next month.'
+        : '<strong>Important:</strong> In this version, you must allocate the full available budget in each month. Unallocated money does not carry over and is not allowed at the end of the month.';
+
+      if (currentCarryoverEnabled()) {
+        carryRuleTitle.textContent = 'Current account and carry-over rule';
+        carryRuleParagraphs[0].innerHTML = 'Any money you leave unallocated at the end of a month remains in your <strong>current account</strong> and carries over to the next month.';
+        carryRuleParagraphs[1].textContent = 'In each month, your available budget is:';
+        carryRuleCode.textContent = 'Base monthly income + money carried over from the previous month = available budget this month';
+        taskIntroList.innerHTML = `
+          <li>Base monthly income each month: <strong>${money(BASE_INCOME)}</strong></li>
+          <li>Unused money remains in your current account and carries over to the next month</li>
+          <li>Total allocated may be less than or equal to the available budget shown for that month</li>
+        `;
+        roundWarning.innerHTML = 'Long-term Savings &amp; Investment is a committed category. It is part of your allocation total and does not return as carry-over later. Only <strong>unallocated remaining money</strong> in your current account carries over to the next month.';
+      } else {
+        carryRuleTitle.textContent = 'Monthly budget rule';
+        carryRuleParagraphs[0].innerHTML = 'In this version, you must allocate the <strong>full available budget</strong> in each month. Any amount left unallocated at the end of a month is not allowed, and nothing carries over to the next month.';
+        carryRuleParagraphs[1].textContent = 'In each month, your available budget is:';
+        carryRuleCode.textContent = 'Base monthly income only = available budget this month';
+        taskIntroList.innerHTML = `
+          <li>Base monthly income each month: <strong>${money(BASE_INCOME)}</strong></li>
+          <li>You must allocate the full available budget in each month</li>
+          <li>No unallocated money carries over to the next month</li>
+        `;
+        roundWarning.innerHTML = 'Long-term Savings &amp; Investment is a committed category. It is part of your allocation total. In this version, <strong>the full available budget must be allocated each month</strong>, and no money carries over to the next month.';
+      }
+    }
+
+    const defaultState = (conditionOverride = null) => {
+      const assignedCondition = conditionOverride || assignCondition();
+      const participantMetadata = makeParticipantMetadata();
+      return ({
+      ...participantMetadata,
+      condition: assignedCondition,
       consent: false,
       currentScreen: 'screen-consent',
       currentRound: 1,
@@ -683,52 +1030,58 @@
         flexibilityActivated: false,
         minimum: ''
       }])),
-      rounds: {
-        1: { carryIn: 0, available: BASE_INCOME, inflation: 1.5, allocations: {}, total: 0, leftover: BASE_INCOME },
-        2: { carryIn: 0, available: BASE_INCOME, inflation: 2.1, allocations: {}, total: 0, leftover: BASE_INCOME },
-        3: { carryIn: 0, available: BASE_INCOME, inflation: 5.1, allocations: {}, total: 0, leftover: BASE_INCOME },
-        4: { carryIn: 0, available: BASE_INCOME, inflation: 11.1, allocations: {}, total: 0, leftover: BASE_INCOME }
-      },
+      rounds: buildRoundsForCondition(assignedCondition),
       categoryOrder: buildRoundOrders(),
+      monthExpectations: { 1: '', 2: '', 3: '', 4: '' },
       attention: { pathPerception: '' },
       finlit: { q1: '', q2: '', q3: '' },
       demographics: {
         age: '',
-        sex: '',
+        gender: '',
         education: '',
         econRelated: '',
         employment: '',
         employmentOther: '',
+        incomeRelativeUK: '',
         residenceCountry: '',
         nationality: '',
         childhoodCountry: '',
         childhoodCountryOther: '',
         financialResponsibility: '',
-        financialResponsibilityOther: ''
+        financialResponsibilityOther: '',
+        boeTargetResponse: '',
+        boeTargetEstimate: ''
       },
       end: { submitted: false, submissionStamp: '', submittedFiles: [] },
       lastSaved: ''
     });
+    };
 
     function migrateState(parsed) {
       const fresh = defaultState();
       const merged = { ...fresh, ...parsed };
+      merged.condition = { ...fresh.condition, ...(parsed.condition || {}) };
       merged.ratings = fresh.ratings;
       if (parsed.ratings) {
         Object.keys(fresh.ratings).forEach(key => {
           merged.ratings[key] = { ...fresh.ratings[key], ...parsed.ratings[key] };
         });
       }
-      merged.rounds = fresh.rounds;
+      merged.rounds = buildRoundsForCondition(merged.condition);
       if (parsed.rounds) {
         Object.keys(fresh.rounds).forEach(key => {
           merged.rounds[key] = { ...fresh.rounds[key], ...parsed.rounds[key] };
         });
       }
       merged.categoryOrder = parsed.categoryOrder || buildRoundOrders();
+      merged.monthExpectations = { ...fresh.monthExpectations, ...(parsed.monthExpectations || {}) };
       merged.attention = { ...fresh.attention, ...(parsed.attention || {}) };
       merged.finlit = { ...fresh.finlit, ...(parsed.finlit || {}) };
       merged.demographics = { ...fresh.demographics, ...(parsed.demographics || {}) };
+      if (!merged.demographics.gender && parsed.demographics && parsed.demographics.sex) {
+        merged.demographics.gender = parsed.demographics.sex;
+      }
+      Object.assign(merged, makeParticipantMetadata(parsed));
       merged.end = { ...fresh.end, ...(parsed.end || {}) };
       return merged;
     }
@@ -736,12 +1089,22 @@
     let state = loadState();
 
     function loadState() {
+      // For local debugging and Gorilla testing, an explicit URL condition must take priority.
+      // Otherwise, a previously autosaved state can make every URL look like the same condition.
+      const urlAssigned = getURLConditionOverrides();
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return defaultState();
+      if (!raw) return defaultState(urlAssigned);
       try {
-        return migrateState(JSON.parse(raw));
+        const parsed = JSON.parse(raw);
+        if (urlAssigned) {
+          const saved = parsed.condition || {};
+          const savedSameCondition = saved.id === urlAssigned.id && saved.ratingTiming === urlAssigned.ratingTiming;
+          if (!savedSameCondition) return defaultState(urlAssigned);
+          parsed.condition = { ...saved, ...urlAssigned };
+        }
+        return migrateState(parsed);
       } catch (e) {
-        return defaultState();
+        return defaultState(urlAssigned);
       }
     }
 
@@ -755,6 +1118,15 @@
     function money(n) {
       const val = Number(n || 0);
       return '£' + val.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    }
+
+    function styleRangeSlider(input, isActive) {
+      const val = Number(input.value || 0);
+      if (!isActive) {
+        input.style.background = '#d1d5db';
+      } else {
+        input.style.background = `linear-gradient(to right, #2563eb 0%, #2563eb ${val}%, #d1d5db ${val}%, #d1d5db 100%)`;
+      }
     }
 
     function showScreen(id) {
@@ -823,7 +1195,7 @@
           </div>
 
           <div class="field">
-            <label>Minimum acceptable monthly spending (£)</label>
+            <label>Minimum acceptable monthly spending for you personally, based on your own experience of living in your current location (£)</label>
             <input type="number" min="0" step="1" value="${rating.minimum}" data-cat="${cat.key}" data-type="minimum" />
           </div>
         `;
@@ -831,6 +1203,7 @@
       });
 
       body.querySelectorAll('input[type="range"]').forEach(input => {
+        styleRangeSlider(input, !input.classList.contains('inactive-scale'));
         const activate = e => {
           const cat = e.target.dataset.cat;
           const type = e.target.dataset.type;
@@ -840,17 +1213,19 @@
             e.target.classList.remove('inactive-scale');
             document.getElementById(`ess_${cat}_value`).textContent = e.target.value;
             document.getElementById(`ess_${cat}_prompt`).textContent = '';
+            styleRangeSlider(e.target, true);
           } else {
             state.ratings[cat].flexibilityActivated = true;
             state.ratings[cat].flexibility = e.target.value;
             e.target.classList.remove('inactive-scale');
             document.getElementById(`flex_${cat}_value`).textContent = e.target.value;
             document.getElementById(`flex_${cat}_prompt`).textContent = '';
+            styleRangeSlider(e.target, true);
           }
           saveState();
         };
-        input.addEventListener('pointerdown', activate, { once: false });
         input.addEventListener('input', activate);
+        input.addEventListener('change', activate);
       });
 
       body.querySelectorAll('input[type="number"]').forEach(input => {
@@ -876,8 +1251,28 @@
     }
 
     function roundAvailable(roundNum) {
+      if (!currentCarryoverEnabled()) return BASE_INCOME;
       if (roundNum === 1) return BASE_INCOME;
       return BASE_INCOME + Number(state.rounds[roundNum].carryIn || 0);
+    }
+
+    function monthExpectationProvided(roundNum) {
+      return String(state.monthExpectations[roundNum] ?? '').trim() !== '';
+    }
+
+    function syncBudgetLock(roundNum) {
+      const locked = !monthExpectationProvided(roundNum);
+      const wrap = document.getElementById('budget-entry-wrap');
+      if (wrap) wrap.classList.toggle('disabled-section', locked);
+      document.querySelectorAll('.budget-input').forEach(inp => { inp.disabled = locked; });
+      const panel = document.getElementById('current-inflation-panel');
+      if (panel) panel.classList.toggle('pulse-focus', locked);
+      const msg = document.getElementById('next-inflation-msg');
+      if (msg) {
+        msg.innerHTML = locked
+          ? "<div class=\"notice\">Please enter your estimate for next month's inflation before setting your budget for this month.</div>"
+          : '<div class="success">Estimate recorded. You can now complete your budget for this month.</div>';
+      }
     }
 
     function computeRound(roundNum) {
@@ -889,7 +1284,9 @@
       });
       round.total = total;
       round.leftover = round.available - round.total;
-      if (roundNum < 4) state.rounds[roundNum + 1].carryIn = Math.max(0, round.leftover);
+      if (roundNum < 4) {
+        state.rounds[roundNum + 1].carryIn = currentCarryoverEnabled() ? Math.max(0, round.leftover) : 0;
+      }
     }
 
     function renderRound() {
@@ -898,13 +1295,22 @@
       round.carryIn = roundNum === 1 ? 0 : Number(state.rounds[roundNum].carryIn || 0);
       computeRound(roundNum);
 
-      document.getElementById('round-badge').textContent = `Round ${roundNum} of 4`;
-      document.getElementById('round-title').textContent = `Monthly budget allocation: Round ${roundNum}`;
+      document.getElementById('round-badge').textContent = `Month ${roundNum} of 4`;
+      document.getElementById('round-title').textContent = `Monthly budget allocation: Month ${roundNum}`;
       document.getElementById('display-baseincome').textContent = money(BASE_INCOME);
       document.getElementById('display-carryin').textContent = money(round.carryIn);
       document.getElementById('display-available').textContent = money(round.available);
-      document.getElementById('display-inflation').textContent = `${INFLATION_PATH[roundNum - 1].value}%`;
-      document.getElementById('display-verbal').textContent = INFLATION_PATH[roundNum - 1].label;
+      const pathValues = getCurrentPath().values;
+      document.getElementById('display-inflation').textContent = `${pathValues[roundNum - 1].value}%`;
+      document.getElementById('display-verbal').textContent = pathValues[roundNum - 1].label;
+
+      const estimateInput = document.getElementById('next-inflation-estimate');
+      estimateInput.value = state.monthExpectations[roundNum] ?? '';
+      estimateInput.oninput = e => {
+        state.monthExpectations[roundNum] = e.target.value;
+        saveState();
+        syncBudgetLock(roundNum);
+      };
 
       const tbody = document.getElementById('budget-body');
       tbody.innerHTML = '';
@@ -934,10 +1340,10 @@
 
       updateRoundSummary();
       document.getElementById('round-msg').innerHTML = '';
-      document.getElementById('round-back-btn').textContent = roundNum === 1 ? 'Back to budgeting overview' : `Back to Round ${roundNum - 1}`;
-      document.getElementById('round-next-btn').textContent = roundNum === 4 ? 'Save round and continue' : `Save round and continue to Round ${roundNum + 1}`;
+      document.getElementById('round-next-btn').textContent = roundNum === 4 ? 'Save month and continue' : `Save month and continue to Month ${roundNum + 1}`;
       const note = document.getElementById('autosave-note');
       note.textContent = state.lastSaved ? 'Autosaved locally: ' + state.lastSaved : '';
+      syncBudgetLock(roundNum);
     }
 
     function updateRoundSummary() {
@@ -946,11 +1352,12 @@
       computeRound(roundNum);
       document.getElementById('display-total').textContent = money(round.total);
       document.getElementById('display-remaining').textContent = money(round.leftover);
-      document.getElementById('display-nextcarry').textContent = money(Math.max(0, round.leftover));
+      document.getElementById('display-nextcarry').textContent = currentCarryoverEnabled() ? money(Math.max(0, round.leftover)) : money(0);
     }
 
     function validateRound(roundNum) {
       const round = state.rounds[roundNum];
+      if (!monthExpectationProvided(roundNum)) return 'Please estimate what you think inflation will be next month before setting your budget for this month.';
       for (const key of state.categoryOrder[roundNum]) {
         const cat = getCategoryByKey(key);
         const raw = round.allocations[cat.key];
@@ -958,14 +1365,26 @@
         if (Number(raw) < 0) return `${cat.label} cannot be negative.`;
       }
       computeRound(roundNum);
-      if (round.total > round.available) return 'Your allocated total exceeds the available budget for this round. Please reduce your allocations.';
+      if (round.total > round.available) return 'Your allocated total exceeds the available budget for this month. Please reduce your allocations.';
+      if (!currentCarryoverEnabled() && round.total !== round.available) return 'In this version, you must allocate the full available budget for this month before continuing.';
       return '';
     }
 
     function renderAttention() {
-      document.querySelectorAll('input[name="path-perception"]').forEach(input => {
+      const optionsWrap = document.getElementById('attention-options');
+      optionsWrap.innerHTML = PATH_OPTIONS.map(option => `
+        <label><input type="radio" name="path-perception" value="${option}" /> ${option}</label>
+      `).join('');
+
+      optionsWrap.querySelectorAll('input[name="path-perception"]').forEach(input => {
         input.checked = input.value === state.attention.pathPerception;
+        input.addEventListener('change', e => {
+          state.attention.pathPerception = e.target.value;
+          saveState();
+        });
       });
+
+      document.getElementById('attention-back-btn').classList.toggle('hidden', ratingsComeBeforeTask());
       document.getElementById('attention-msg').innerHTML = '';
     }
 
@@ -1009,17 +1428,21 @@
 
     function renderDemographics() {
       document.getElementById('demo-age').value = state.demographics.age;
-      document.querySelectorAll('input[name="demo-sex"]').forEach(input => input.checked = input.value === state.demographics.sex);
+      document.querySelectorAll('input[name="demo-gender"]').forEach(input => input.checked = input.value === state.demographics.gender);
       document.querySelectorAll('input[name="demo-education"]').forEach(input => input.checked = input.value === state.demographics.education);
       document.querySelectorAll('input[name="demo-econrelated"]').forEach(input => input.checked = input.value === state.demographics.econRelated);
       document.querySelectorAll('input[name="demo-employment"]').forEach(input => input.checked = input.value === state.demographics.employment);
       document.getElementById('demo-employment-other').value = state.demographics.employmentOther;
+      document.querySelectorAll('input[name="demo-income-relative-uk"]').forEach(input => input.checked = input.value === state.demographics.incomeRelativeUK);
       document.getElementById('demo-residence').value = state.demographics.residenceCountry;
       document.getElementById('demo-nationality').value = state.demographics.nationality;
       document.querySelectorAll('input[name="demo-childhood"]').forEach(input => input.checked = input.value === state.demographics.childhoodCountry);
       document.getElementById('demo-childhood-other').value = state.demographics.childhoodCountryOther;
       document.querySelectorAll('input[name="demo-finresp"]').forEach(input => input.checked = input.value === state.demographics.financialResponsibility);
       document.getElementById('demo-finresp-other').value = state.demographics.financialResponsibilityOther;
+      document.querySelectorAll('input[name="boe-target-response"]').forEach(input => input.checked = input.value === state.demographics.boeTargetResponse);
+      document.getElementById('boe-target-estimate').value = state.demographics.boeTargetEstimate;
+      document.getElementById('boe-target-estimate').classList.toggle('hidden', state.demographics.boeTargetResponse !== 'Estimate');
       syncConditionalDemographicVisibility();
       document.getElementById('demographics-msg').innerHTML = '';
     }
@@ -1027,25 +1450,29 @@
     function validateDemographics() {
       const d = state.demographics;
       if (!d.age || Number(d.age) < 18) return 'Please enter your age in years.';
-      if (!d.sex) return 'Please select your sex.';
+      if (!d.gender) return 'Please select your gender.';
       if (!d.education) return 'Please select your highest level of education completed.';
       if (requiresEconRelated(d.education) && !d.econRelated) return 'Please indicate whether your main field of study was related to economics, finance, or a closely related subject.';
       if (!d.employment) return 'Please select your employment status.';
       if (d.employment === 'Other' && !d.employmentOther.trim()) return 'Please specify your employment status.';
+      if (!d.incomeRelativeUK) return 'Please answer the relative income question.';
       if (!d.residenceCountry.trim()) return 'Please enter your current country of residence.';
       if (!d.nationality.trim()) return 'Please enter your nationality.';
       if (!d.childhoodCountry) return 'Please indicate where you spent most of your childhood.';
       if (d.childhoodCountry === 'Other' && !d.childhoodCountryOther.trim()) return 'Please specify the country where you spent most of your childhood.';
       if (!d.financialResponsibility) return 'Please indicate your financial responsibility.';
       if (d.financialResponsibility === 'Other' && !d.financialResponsibilityOther.trim()) return 'Please specify your financial responsibility.';
+      if (!d.boeTargetResponse) return 'Please answer the Bank of England inflation target question.';
+      if (d.boeTargetResponse === 'Estimate' && String(d.boeTargetEstimate).trim() === '') return 'Please enter your estimate of the Bank of England inflation target rate.';
       return '';
     }
 
     function renderEnd() {
       document.getElementById('pid-display').textContent = state.participant_id;
-      const totals = [1, 2, 3, 4].map(r => `Round ${r}: allocated ${money(state.rounds[r].total)}, leftover ${money(state.rounds[r].leftover)}`);
+      const totals = [1, 2, 3, 4].map(r => `Month ${r}: allocated ${money(state.rounds[r].total)}, unallocated ${money(state.rounds[r].leftover)}`);
       document.getElementById('summary-text').innerHTML = `
         <p><strong>Participant ID:</strong> ${state.participant_id}</p>
+        <p><strong>Condition:</strong> ${state.condition.id} (${getCurrentPath().name})</p>
         <ul>${totals.map(t => `<li>${t}</li>`).join('')}</ul>
       `;
       const endMsg = document.getElementById('end-msg');
@@ -1059,30 +1486,43 @@
     function flattenData() {
       const row = {
         participant_id: state.participant_id,
+        participant_id_source: state.participant_id_source,
+        prolific_pid: state.prolific_pid,
+        study_id: state.study_id,
+        session_id: state.session_id,
+        generated_participant_id: state.generated_participant_id,
         submitted_at_browser: new Date().toISOString(),
         user_agent: navigator.userAgent,
-        condition_carryover: 'yes',
-        inflation_path: 'shock',
+        condition_id: state.condition.id,
+        condition_source: state.condition.source,
+        condition_carryover: state.condition.carryover,
+        inflation_path: state.condition.pathKey,
+        inflation_path_name: getCurrentPath().name,
+        inflation_path_values: PATH_DISPLAY_STRINGS[state.condition.pathKey],
         base_income: BASE_INCOME,
-        rating_timing: 'before',
+        rating_timing: state.condition.ratingTiming,
         budgeting_target: 'participant_personally',
         long_term_savings_locked: 'yes',
+        no_carryover_forced_full_allocation: NO_CARRYOVER_FORCE_FULL_ALLOCATION ? 'yes' : 'no',
         attention_path_selected: state.attention.pathPerception,
         finlit_q1: state.finlit.q1,
         finlit_q2: state.finlit.q2,
         finlit_q3: state.finlit.q3,
         age: state.demographics.age,
-        sex: state.demographics.sex,
+        gender: state.demographics.gender,
         education: state.demographics.education,
         econ_related: state.demographics.econRelated,
         employment: state.demographics.employment,
         employment_other: state.demographics.employmentOther,
+        income_relative_uk: state.demographics.incomeRelativeUK,
         residence_country: state.demographics.residenceCountry,
         nationality: state.demographics.nationality,
         childhood_country: state.demographics.childhoodCountry,
         childhood_country_other: state.demographics.childhoodCountryOther,
         financial_responsibility: state.demographics.financialResponsibility,
-        financial_responsibility_other: state.demographics.financialResponsibilityOther
+        financial_responsibility_other: state.demographics.financialResponsibilityOther,
+        boe_target_response: state.demographics.boeTargetResponse,
+        boe_target_estimate: state.demographics.boeTargetEstimate
       };
 
       CATEGORIES.forEach(cat => {
@@ -1092,8 +1532,9 @@
       });
 
       [1, 2, 3, 4].forEach(r => {
-        row[`inflation_r${r}`] = INFLATION_PATH[r - 1].value;
-        row[`inflation_label_r${r}`] = INFLATION_PATH[r - 1].label;
+        row[`inflation_expectation_next_month_r${r}`] = state.monthExpectations[r] ?? '';
+        row[`inflation_r${r}`] = getCurrentPath().values[r - 1].value;
+        row[`inflation_label_r${r}`] = getCurrentPath().values[r - 1].label;
         row[`carryin_r${r}`] = state.rounds[r].carryIn;
         row[`avail_r${r}`] = state.rounds[r].available;
         row[`total_r${r}`] = state.rounds[r].total;
@@ -1183,7 +1624,10 @@
         endMsg.innerHTML = '<div class="success">Submission succeeded. Your responses have been recorded.</div>';
       } catch (err) {
         console.error(err);
-        endMsg.innerHTML = `<div class="error">Submission failed: ${err.message}. Please try again, and do not close the page.</div>`;
+        const backupStamp = makeSubmissionStamp();
+        const backupCsv = toCSV(flattenData());
+        downloadFile(`consumer_budgeting_backup_${state.participant_id}_${backupStamp}.csv`, backupCsv, 'text/csv;charset=utf-8;');
+        endMsg.innerHTML = `<div class="error">Submission failed: ${err.message}. A local backup CSV has been downloaded automatically. Please try again, and do not close the page.</div>`;
         submitBtn.disabled = false;
         return;
       }
@@ -1198,10 +1642,17 @@
         showScreen('screen-overview');
       });
 
-      document.getElementById('to-carry-rule').addEventListener('click', () => showScreen('screen-carryrule'));
+      document.getElementById('to-carry-rule').addEventListener('click', () => {
+        updateConditionTexts();
+        showScreen('screen-carryrule');
+      });
       document.getElementById('to-ratings').addEventListener('click', () => {
-        renderRatings();
-        showScreen('screen-ratings');
+        if (ratingsComeBeforeTask()) {
+          renderRatings();
+          showScreen('screen-ratings');
+        } else {
+          showScreen('screen-taskintro');
+        }
       });
 
       document.getElementById('to-taskintro').addEventListener('click', () => {
@@ -1213,7 +1664,12 @@
         }
         state.ratingsDone = true;
         saveState();
-        showScreen('screen-taskintro');
+        updateConditionTexts();
+        if (ratingsComeBeforeTask()) {
+          showScreen('screen-taskintro');
+        } else {
+          showScreen('screen-attention');
+        }
       });
 
       document.getElementById('start-round1').addEventListener('click', () => {
@@ -1221,16 +1677,6 @@
         computeRound(1);
         saveState();
         showScreen('screen-round');
-      });
-
-      document.getElementById('round-back-btn').addEventListener('click', () => {
-        if (state.currentRound === 1) {
-          showScreen('screen-taskintro');
-        } else {
-          state.currentRound -= 1;
-          saveState();
-          renderRound();
-        }
       });
 
       document.getElementById('round-next-btn').addEventListener('click', () => {
@@ -1241,7 +1687,7 @@
           box.innerHTML = `<div class="error">${msg}</div>`;
           return;
         }
-        box.innerHTML = `<div class="success">Round ${roundNum} saved.</div>`;
+        box.innerHTML = `<div class="success">Month ${roundNum} saved.</div>`;
         saveState();
         if (roundNum < 4) {
           state.currentRound += 1;
@@ -1249,7 +1695,12 @@
           saveState();
           setTimeout(() => renderRound(), 250);
         } else {
-          showScreen('screen-attention');
+          if (ratingsComeBeforeTask()) {
+            showScreen('screen-attention');
+          } else {
+            renderRatings();
+            showScreen('screen-ratings');
+          }
         }
       });
 
@@ -1261,8 +1712,10 @@
       });
 
       document.getElementById('attention-back-btn').addEventListener('click', () => {
-        state.currentRound = 4;
-        showScreen('screen-round');
+        if (!ratingsComeBeforeTask()) {
+          renderRatings();
+          showScreen('screen-ratings');
+        }
       });
 
       document.getElementById('to-finlit').addEventListener('click', () => {
@@ -1300,9 +1753,9 @@
         state.demographics.age = e.target.value;
         saveState();
       });
-      document.querySelectorAll('input[name="demo-sex"]').forEach(input => {
+      document.querySelectorAll('input[name="demo-gender"]').forEach(input => {
         input.addEventListener('change', e => {
-          state.demographics.sex = e.target.value;
+          state.demographics.gender = e.target.value;
           saveState();
         });
       });
@@ -1331,6 +1784,12 @@
       document.getElementById('demo-employment-other').addEventListener('input', e => {
         state.demographics.employmentOther = e.target.value;
         saveState();
+      });
+      document.querySelectorAll('input[name="demo-income-relative-uk"]').forEach(input => {
+        input.addEventListener('change', e => {
+          state.demographics.incomeRelativeUK = e.target.value;
+          saveState();
+        });
       });
       document.getElementById('demo-residence').addEventListener('input', e => {
         state.demographics.residenceCountry = e.target.value;
@@ -1364,6 +1823,19 @@
         state.demographics.financialResponsibilityOther = e.target.value;
         saveState();
       });
+      document.querySelectorAll('input[name="boe-target-response"]').forEach(input => {
+        input.addEventListener('change', e => {
+          state.demographics.boeTargetResponse = e.target.value;
+          if (e.target.value !== 'Estimate') state.demographics.boeTargetEstimate = '';
+          document.getElementById('boe-target-estimate').classList.toggle('hidden', e.target.value !== 'Estimate');
+          if (e.target.value !== 'Estimate') document.getElementById('boe-target-estimate').value = '';
+          saveState();
+        });
+      });
+      document.getElementById('boe-target-estimate').addEventListener('input', e => {
+        state.demographics.boeTargetEstimate = e.target.value;
+        saveState();
+      });
 
       document.getElementById('demographics-back-btn').addEventListener('click', () => showScreen('screen-finlit'));
 
@@ -1381,27 +1853,6 @@
 
       document.getElementById('submit-datapipe').addEventListener('click', submitToDataPipe);
 
-      document.getElementById('download-csv').addEventListener('click', () => {
-        const row = flattenData();
-        downloadFile(`consumer_budgeting_${state.participant_id}.csv`, toCSV(row), 'text/csv;charset=utf-8;');
-        document.getElementById('end-msg').innerHTML = '<div class="success">Backup CSV downloaded.</div>';
-      });
-
-      document.getElementById('download-json').addEventListener('click', () => {
-        downloadFile(`consumer_budgeting_${state.participant_id}.json`, JSON.stringify(state, null, 2), 'application/json;charset=utf-8;');
-        document.getElementById('end-msg').innerHTML = '<div class="success">Backup JSON downloaded.</div>';
-      });
-
-      document.getElementById('reset-all').addEventListener('click', () => {
-        const sure = confirm('This will erase locally saved progress in this browser for this study. Continue?');
-        if (!sure) return;
-        localStorage.removeItem(STORAGE_KEY);
-        state = defaultState();
-        document.getElementById('consent-check').checked = false;
-        renderRatings();
-        showScreen('screen-consent');
-      });
-
       document.querySelectorAll('.back-btn').forEach(btn => {
         btn.addEventListener('click', e => {
           const target = e.currentTarget.dataset.back;
@@ -1413,7 +1864,14 @@
 
     function restore() {
       document.getElementById('consent-check').checked = !!state.consent;
+      updateConditionTexts();
       renderRatings();
+      const ratingsIntro = document.getElementById('ratings-intro-text');
+      if (ratingsIntro) {
+        ratingsIntro.textContent = ratingsComeBeforeTask()
+          ? 'Before the budgeting task, please rate each spending category.'
+          : 'After completing the budgeting task, please rate each spending category.';
+      }
       if (document.getElementById(state.currentScreen)) {
         showScreen(state.currentScreen);
       } else {
