@@ -674,13 +674,20 @@
       submitJSON: false
     };
 
+    const PROLIFIC_CONFIG = {
+      // Fill this in after creating the Prolific study, or pass it through the URL as ?completionCode=XXXX.
+      // Participants are redirected only after DataPipe submission succeeds.
+      completionCode: '',
+      completionURL: ''
+    };
+
     function makeSubmissionStamp() {
       const now = new Date();
       const pad = n => String(n).padStart(2, '0');
       return `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
     }
 
-    const STORAGE_KEY = 'consumer_budgeting_study_v7';
+    const STORAGE_KEY = 'consumer_budgeting_study_v9';
     const CONDITION_COUNTER_KEY = 'consumer_budgeting_main_condition_counts_v4';
     const RATING_COUNTER_KEY = 'consumer_budgeting_rating_counts_v1';
     const RATING_TIMINGS = ['before', 'after'];
@@ -754,6 +761,28 @@
       return cells;
     })();
 
+    // Use opaque cell codes in Gorilla Redirect URLs so participants do not see meaningful condition names.
+    // These codes are allocation units only. The substantive design remains Carry-over Condition × Inflation Path,
+    // with rating timing counterbalanced.
+    const CELL_CODE_MAP = {
+      c01: { carryover: 'yes', pathKey: 'stable_target', ratingTiming: 'before' },
+      c02: { carryover: 'yes', pathKey: 'stable_target', ratingTiming: 'after' },
+      c03: { carryover: 'yes', pathKey: 'gradual_rise', ratingTiming: 'before' },
+      c04: { carryover: 'yes', pathKey: 'gradual_rise', ratingTiming: 'after' },
+      c05: { carryover: 'yes', pathKey: 'accelerating_shock', ratingTiming: 'before' },
+      c06: { carryover: 'yes', pathKey: 'accelerating_shock', ratingTiming: 'after' },
+      c07: { carryover: 'yes', pathKey: 'decelerating_shock', ratingTiming: 'before' },
+      c08: { carryover: 'yes', pathKey: 'decelerating_shock', ratingTiming: 'after' },
+      c09: { carryover: 'no', pathKey: 'stable_target', ratingTiming: 'before' },
+      c10: { carryover: 'no', pathKey: 'stable_target', ratingTiming: 'after' },
+      c11: { carryover: 'no', pathKey: 'gradual_rise', ratingTiming: 'before' },
+      c12: { carryover: 'no', pathKey: 'gradual_rise', ratingTiming: 'after' },
+      c13: { carryover: 'no', pathKey: 'accelerating_shock', ratingTiming: 'before' },
+      c14: { carryover: 'no', pathKey: 'accelerating_shock', ratingTiming: 'after' },
+      c15: { carryover: 'no', pathKey: 'decelerating_shock', ratingTiming: 'before' },
+      c16: { carryover: 'no', pathKey: 'decelerating_shock', ratingTiming: 'after' }
+    };
+
     const CATEGORIES = [
       { key: 'housing', label: 'Housing' },
       { key: 'food', label: 'Food & Groceries' },
@@ -784,14 +813,25 @@
       return '';
     }
 
+    function buildProlificCompletionURL(code) {
+      const cleaned = String(code || '').trim();
+      return cleaned ? `https://app.prolific.com/submissions/complete?cc=${encodeURIComponent(cleaned)}` : '';
+    }
+
     function getURLStudyMetadata() {
       const params = new URLSearchParams(window.location.search);
+      const completionUrlFromURL = getURLParamAny(params, ['completionURL', 'completion_url', 'PROLIFIC_COMPLETION_URL']);
+      const completionCodeFromURL = getURLParamAny(params, ['completionCode', 'completion_code', 'PROLIFIC_COMPLETION_CODE', 'cc']);
+      const configuredCompletionURL = PROLIFIC_CONFIG.completionURL || buildProlificCompletionURL(PROLIFIC_CONFIG.completionCode);
+      const derivedCompletionURL = completionUrlFromURL || buildProlificCompletionURL(completionCodeFromURL) || configuredCompletionURL;
+
       return {
-        prolific_pid: getURLParamAny(params, ['PROLIFIC_PID', 'prolific_pid']),
+        prolific_pid: getURLParamAny(params, ['PROLIFIC_PID', 'prolific_pid', 'external_id', 'externalSessionID']),
         study_id: getURLParamAny(params, ['STUDY_ID', 'study_id']),
         session_id: getURLParamAny(params, ['SESSION_ID', 'session_id']),
-        gorilla_public_id: getURLParamAny(params, ['gorilla_public_id', 'GORILLA_PUBLIC_ID']),
-        gorilla_completion_url: getURLParamAny(params, ['completion_token', 'COMPLETION_TOKEN'])
+        gorilla_public_id: getURLParamAny(params, ['gorilla_public_id', 'PublicID', 'public_id']),
+        prolific_completion_code: completionCodeFromURL || PROLIFIC_CONFIG.completionCode || '',
+        prolific_completion_url: derivedCompletionURL
       };
     }
 
@@ -803,15 +843,16 @@
         || makePid();
 
       return {
-        participant_id: prolificPid || urlMetadata.gorilla_public_id || saved.gorilla_public_id || generatedParticipantId,
+        participant_id: prolificPid || generatedParticipantId,
         participant_id_source: prolificPid
           ? (urlMetadata.prolific_pid ? 'prolific_url_parameter' : 'saved_prolific_pid')
-          : ((urlMetadata.gorilla_public_id || saved.gorilla_public_id) ? 'gorilla_public_id' : 'generated_local'),
+          : 'generated_local',
         prolific_pid: prolificPid,
         study_id: urlMetadata.study_id || saved.study_id || '',
         session_id: urlMetadata.session_id || saved.session_id || '',
         gorilla_public_id: urlMetadata.gorilla_public_id || saved.gorilla_public_id || '',
-        gorilla_completion_url: urlMetadata.gorilla_completion_url || saved.gorilla_completion_url || '',
+        prolific_completion_code: urlMetadata.prolific_completion_code || saved.prolific_completion_code || '',
+        prolific_completion_url: urlMetadata.prolific_completion_url || saved.prolific_completion_url || '',
         generated_participant_id: generatedParticipantId
       };
     }
@@ -886,13 +927,14 @@
       return aliases[String(raw || '').trim().toLowerCase()] || null;
     }
 
-    function makeCondition(carryover, pathKey, ratingTiming, source) {
+    function makeCondition(carryover, pathKey, ratingTiming, source, cellCode = '') {
       return {
         id: `${carryover}_${pathKey}`,
         carryover,
         pathKey,
         ratingTiming: ratingTiming || pickBalancedRatingTimingLocal(),
-        source
+        source,
+        cellCode
       };
     }
 
@@ -900,6 +942,12 @@
       const params = new URLSearchParams(window.location.search);
       const explicitTiming = params.get('ratingTiming');
       const timing = RATING_TIMINGS.includes(explicitTiming) ? explicitTiming : null;
+
+      const rawCellCode = (params.get('cell') || params.get('cell_code') || '').trim().toLowerCase();
+      if (rawCellCode && CELL_CODE_MAP[rawCellCode]) {
+        const cell = CELL_CODE_MAP[rawCellCode];
+        return makeCondition(cell.carryover, cell.pathKey, cell.ratingTiming, 'url_opaque_cell_code', rawCellCode);
+      }
 
       const conditionId = params.get('condition_id');
       if (conditionId) {
@@ -1056,7 +1104,7 @@
         boeTargetResponse: '',
         boeTargetEstimate: ''
       },
-      end: { submitted: false, submissionStamp: '', submittedFiles: [] },
+      end: { submitted: false, submissionStamp: '', submittedFiles: [], completionRedirectStarted: false },
       lastSaved: ''
     });
     };
@@ -1476,19 +1524,17 @@
       const totals = [1, 2, 3, 4].map(r => `Month ${r}: allocated ${money(state.rounds[r].total)}, unallocated ${money(state.rounds[r].leftover)}`);
       document.getElementById('summary-text').innerHTML = `
         <p><strong>Participant ID:</strong> ${state.participant_id}</p>
-        <p><strong>Condition:</strong> ${state.condition.id} (${getCurrentPath().name})</p>
         <ul>${totals.map(t => `<li>${t}</li>`).join('')}</ul>
       `;
       const endMsg = document.getElementById('end-msg');
       if (state.end.submitted) {
-        if (hasValidGorillaCompletionURL()) {
-          endMsg.innerHTML = '<div class="success">Submission succeeded. Your responses have been recorded. Returning to Gorilla...</div>';
-          returnToGorillaAfterSubmit(800);
+        if (state.prolific_completion_url) {
+          endMsg.innerHTML = '<div class="success">Submission succeeded. You will be redirected to Prolific to record completion.</div>';
         } else {
-          endMsg.innerHTML = '<div class="success">Submission succeeded. Your responses have been recorded.</div>';
+          endMsg.innerHTML = '<div class="success">Submission succeeded. Your responses have been recorded. No Prolific completion URL is configured for this test link.</div>';
         }
       } else {
-        endMsg.innerHTML = '<div class="notice">When you are ready, click “Submit responses”. Please keep the page open until submission finishes.</div>';
+        endMsg.innerHTML = '<div class="notice">When you are ready, click “Submit responses”. Please keep the page open until submission finishes. You will receive the completion code only after your data have been submitted successfully.</div>';
       }
     }
 
@@ -1500,12 +1546,15 @@
         study_id: state.study_id,
         session_id: state.session_id,
         gorilla_public_id: state.gorilla_public_id,
-        gorilla_completion_url_present: state.gorilla_completion_url ? 'yes' : 'no',
+        prolific_completion_code: state.prolific_completion_code,
+        prolific_completion_url_configured: state.prolific_completion_url ? 'yes' : 'no',
+        prolific_completion_redirect_started: state.end.completionRedirectStarted ? 'yes' : 'no',
         generated_participant_id: state.generated_participant_id,
         submitted_at_browser: new Date().toISOString(),
         user_agent: navigator.userAgent,
         condition_id: state.condition.id,
         condition_source: state.condition.source,
+        allocation_cell_code: state.condition.cellCode || '',
         condition_carryover: state.condition.carryover,
         inflation_path: state.condition.pathKey,
         inflation_path_name: getCurrentPath().name,
@@ -1600,17 +1649,11 @@
       return payload;
     }
 
-    function hasValidGorillaCompletionURL() {
-      const url = String(state.gorilla_completion_url || '').trim();
-      return url.startsWith('https://research.sc/participant/login/resume/');
-    }
-
-    function returnToGorillaAfterSubmit(delayMs = 800) {
-      if (!hasValidGorillaCompletionURL()) return false;
-      setTimeout(() => {
-        window.location.href = state.gorilla_completion_url;
-      }, delayMs);
-      return true;
+    function redirectToProlificCompletion() {
+      if (!state.prolific_completion_url) return;
+      state.end.completionRedirectStarted = true;
+      saveState();
+      window.location.href = state.prolific_completion_url;
     }
 
     async function submitToDataPipe() {
@@ -1645,11 +1688,11 @@
         state.end.submissionStamp = stamp;
         state.end.submittedFiles = files;
         saveState();
-
-        if (returnToGorillaAfterSubmit(800)) {
-          endMsg.innerHTML = '<div class="success">Submission succeeded. Your responses have been recorded. Returning to Gorilla...</div>';
+        if (state.prolific_completion_url) {
+          endMsg.innerHTML = '<div class="success">Submission succeeded. Redirecting to Prolific completion page now.</div>';
+          setTimeout(redirectToProlificCompletion, 700);
         } else {
-          endMsg.innerHTML = '<div class="success">Submission succeeded. Your responses have been recorded. No Gorilla return URL was found, so you may now close this page.</div>';
+          endMsg.innerHTML = '<div class="success">Submission succeeded. Your responses have been recorded. No Prolific completion URL is configured for this test link.</div>';
         }
       } catch (err) {
         console.error(err);
