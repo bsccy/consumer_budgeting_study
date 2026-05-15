@@ -337,7 +337,7 @@
       <p>In this task, you will be asked to imagine your own monthly budgeting decisions under a series of simulated economic conditions. In each month, you will see information about the current economic environment and the amount of money available to you for that month. You will then decide how much to allocate to different spending categories.</p>
       <p>Please answer as realistically as possible, based on how you think you would respond in such a situation. There are no right or wrong answers. We are interested in your personal judgments and decisions.</p>
       <div class="notice">
-        <strong>Important:</strong> you do not have to allocate all available money. You may leave some money unallocated in your current account if that is what you think you would do.
+        <strong>Important:</strong> In some versions of the task, you may leave some money unallocated in your current account if that is what you would do.
       </div>
       <div class="btn-row">
         <button class="secondary back-btn" data-back="screen-consent">Back</button>
@@ -347,14 +347,14 @@
 
     <div id="screen-carryrule" class="screen card">
       <h2>Current account and carry-over rule</h2>
-      <p>Any money you leave unallocated at the end of a month remains in your <strong>current account</strong> and carries over to the next month.</p>
+      <p>Any money you leave unallocated at the end of a month remains in your <strong>current account</strong> and will be available next month.</p>
       <p>In each month, your available budget is:</p>
       <div class="codebox">Base monthly income + money carried over from the previous month = available budget this month</div>
       <div class="warning">
         <strong>Long-term Savings &amp; Investment is locked.</strong><br>
         Money allocated to this category is treated as committed. It does <strong>not</strong> come back as carry-over in the next round.
       </div>
-      <p>You must follow the budget rule shown for that month.</p>
+      <p>Please follow the budget rule shown for that month.</p>
       <div class="btn-row">
         <button class="secondary back-btn" data-back="screen-overview">Back</button>
         <button id="to-ratings">Continue to ratings</button>
@@ -388,7 +388,7 @@
       <ul class="subtle-list">
         <li>Base monthly income each round: <strong>£3,000</strong></li>
         <li>Unused money remains in your current account and carries over to the next round</li>
-        <li>Total allocated must not exceed the available budget shown for that round</li>
+        <li>Total allocated should not exceed the available budget shown for that month</li>
       </ul>
       <div class="btn-row">
         <button class="secondary back-btn" data-back="screen-carryrule">Back</button>
@@ -401,12 +401,12 @@
       <div class="badge" id="round-badge">Month 1 of 4</div>
       <h2 id="round-title">Monthly budget allocation</h2>
       <div class="summary-box">
-        <div class="grid-3">
+        <div class="grid-3" id="top-budget-summary-grid">
           <div>
             <div class="muted">Base monthly income</div>
             <div class="big" id="display-baseincome">£3,000</div>
           </div>
-          <div>
+          <div id="carryin-summary-item">
             <div class="muted">Money carried over from last month</div>
             <div class="big" id="display-carryin">£0</div>
           </div>
@@ -428,8 +428,11 @@
 
       <div class="field">
         <label for="next-inflation-estimate">Before setting your budget for this month, please estimate what you think annual inflation will be next month.</label>
-        <input id="next-inflation-estimate" type="number" step="0.1" placeholder="Enter your estimate" />
-        <div class="muted">There are no right or wrong answers. Please use your own judgement.</div>
+        <div class="input-with-unit">
+          <input id="next-inflation-estimate" type="number" min="0" step="0.1" inputmode="decimal" placeholder="Enter number only" />
+          <span class="input-unit">%</span>
+        </div>
+        <div class="muted">Please enter only the number that would appear before the percent sign. There are no right or wrong answers.</div>
       </div>
       <div id="next-inflation-msg"></div>
 
@@ -445,16 +448,16 @@
       </table>
 
       <div class="summary-box" style="margin-top: 16px;">
-        <div class="grid-3">
+        <div class="grid-3" id="round-budget-summary-grid">
           <div>
             <div class="muted">Allocated total</div>
             <div class="big" id="display-total">£0</div>
           </div>
           <div>
-            <div class="muted">Remaining / still to allocate this month</div>
+            <div class="muted" id="remaining-label">Remaining / current account balance</div>
             <div class="big" id="display-remaining">£3,000</div>
           </div>
-          <div>
+          <div id="nextcarry-summary-item">
             <div class="muted">Carry-over to next month</div>
             <div class="big" id="display-nextcarry">£3,000</div>
           </div>
@@ -462,7 +465,7 @@
       </div>
 
       <div class="warning">
-        Long-term Savings &amp; Investment is a committed category. It is part of your allocation total and does not return as carry-over later. Only <strong>unallocated remaining money</strong> in your current account carries over.
+        Long-term Savings &amp; Investment is a committed category. It is part of your allocation total and does not return later. Only <strong>unallocated remaining money</strong> in your current account will be available next month.
       </div>
       </div>
 
@@ -1037,31 +1040,31 @@
       if (ratingsBackBtn) ratingsBackBtn.classList.toggle('hidden', !ratingsComeBeforeTask());
 
       overviewNotice.innerHTML = currentCarryoverEnabled()
-        ? '<strong>Important:</strong> In this version, you may leave some money unallocated at the end of a month. Any money left in your current account carries over to the next month.'
-        : '<strong>Important:</strong> In this version, you must allocate the full available budget in each month. Unallocated money does not carry over and is not allowed at the end of the month.';
+        ? '<strong>Important:</strong> In this version, you may leave some money unallocated at the end of a month. Any unallocated money in your current account will be available next month.'
+        : '<strong>Important:</strong> In this version, please allocate the full available budget in each month.';
 
       if (currentCarryoverEnabled()) {
         carryRuleTitle.textContent = 'Current account and carry-over rule';
-        carryRuleParagraphs[0].innerHTML = 'Any money you leave unallocated at the end of a month remains in your <strong>current account</strong> and carries over to the next month.';
+        carryRuleParagraphs[0].innerHTML = 'Any money you leave unallocated at the end of a month remains in your <strong>current account</strong> and will be available next month.';
         carryRuleParagraphs[1].textContent = 'In each month, your available budget is:';
         carryRuleCode.textContent = 'Base monthly income + money carried over from the previous month = available budget this month';
         taskIntroList.innerHTML = `
           <li>Base monthly income each month: <strong>${money(BASE_INCOME)}</strong></li>
-          <li>Unused money remains in your current account and carries over to the next month</li>
-          <li>Total allocated may be less than or equal to the available budget shown for that month</li>
+          <li>Unused money remains in your current account and will be available next month</li>
+          <li>Total allocated can be less than or equal to the available budget shown for that month</li>
         `;
-        roundWarning.innerHTML = 'Long-term Savings &amp; Investment is a committed category. It is part of your allocation total and does not return as carry-over later. Only <strong>unallocated remaining money</strong> in your current account carries over to the next month.';
+        roundWarning.innerHTML = 'Long-term Savings &amp; Investment is a committed category. It is part of your allocation total and does not return later. Only <strong>unallocated remaining money</strong> in your current account will be available next month.';
       } else {
         carryRuleTitle.textContent = 'Monthly budget rule';
-        carryRuleParagraphs[0].innerHTML = 'In this version, you must allocate the <strong>full available budget</strong> in each month. Any amount left unallocated at the end of a month is not allowed, and nothing carries over to the next month.';
+        carryRuleParagraphs[0].innerHTML = 'In this version, please allocate the <strong>full available budget</strong> across the spending categories in each month.';
         carryRuleParagraphs[1].textContent = 'In each month, your available budget is:';
-        carryRuleCode.textContent = 'Base monthly income only = available budget this month';
+        carryRuleCode.textContent = 'Base monthly income = available budget this month';
         taskIntroList.innerHTML = `
           <li>Base monthly income each month: <strong>${money(BASE_INCOME)}</strong></li>
-          <li>You must allocate the full available budget in each month</li>
-          <li>No unallocated money carries over to the next month</li>
+          <li>Please allocate the full available budget in each month</li>
+          <li>The allocated total should equal the available budget shown for that month</li>
         `;
-        roundWarning.innerHTML = 'Long-term Savings &amp; Investment is a committed category. It is part of your allocation total. In this version, <strong>the full available budget must be allocated each month</strong>, and no money carries over to the next month.';
+        roundWarning.innerHTML = 'Long-term Savings &amp; Investment is one of the spending categories in this task. Money entered in this category counts as part of your monthly allocation total.';
       }
     }
 
@@ -1322,7 +1325,7 @@
       const msg = document.getElementById('next-inflation-msg');
       if (msg) {
         msg.innerHTML = locked
-          ? "<div class=\"notice\">Please enter your estimate for next month's inflation before setting your budget for this month.</div>"
+          ? "<div class=\"notice\">Please enter your estimate of next month’s inflation as a percentage number before setting your budget.</div>"
           : '<div class="success">Estimate recorded. You can now complete your budget for this month.</div>';
       }
     }
@@ -1352,6 +1355,13 @@
       document.getElementById('display-baseincome').textContent = money(BASE_INCOME);
       document.getElementById('display-carryin').textContent = money(round.carryIn);
       document.getElementById('display-available').textContent = money(round.available);
+      const topGrid = document.getElementById('top-budget-summary-grid');
+      const carryinItem = document.getElementById('carryin-summary-item');
+      if (topGrid) {
+        topGrid.classList.toggle('grid-3', currentCarryoverEnabled());
+        topGrid.classList.toggle('grid-2', !currentCarryoverEnabled());
+      }
+      if (carryinItem) carryinItem.classList.toggle('hidden', !currentCarryoverEnabled());
       const pathValues = getCurrentPath().values;
       document.getElementById('display-inflation').textContent = `${pathValues[roundNum - 1].value}%`;
       document.getElementById('display-verbal').textContent = pathValues[roundNum - 1].label;
@@ -1405,11 +1415,24 @@
       document.getElementById('display-total').textContent = money(round.total);
       document.getElementById('display-remaining').textContent = money(round.leftover);
       document.getElementById('display-nextcarry').textContent = currentCarryoverEnabled() ? money(Math.max(0, round.leftover)) : money(0);
+      const roundGrid = document.getElementById('round-budget-summary-grid');
+      const nextcarryItem = document.getElementById('nextcarry-summary-item');
+      const remainingLabel = document.getElementById('remaining-label');
+      if (roundGrid) {
+        roundGrid.classList.toggle('grid-3', currentCarryoverEnabled());
+        roundGrid.classList.toggle('grid-2', !currentCarryoverEnabled());
+      }
+      if (nextcarryItem) nextcarryItem.classList.toggle('hidden', !currentCarryoverEnabled());
+      if (remainingLabel) {
+        remainingLabel.textContent = currentCarryoverEnabled()
+          ? 'Remaining / current account balance'
+          : 'Remaining to allocate this month';
+      }
     }
 
     function validateRound(roundNum) {
       const round = state.rounds[roundNum];
-      if (!monthExpectationProvided(roundNum)) return 'Please estimate what you think inflation will be next month before setting your budget for this month.';
+      if (!monthExpectationProvided(roundNum)) return 'Please enter your estimate of next month’s inflation as a percentage number before setting your budget.';
       for (const key of state.categoryOrder[roundNum]) {
         const cat = getCategoryByKey(key);
         const raw = round.allocations[cat.key];
@@ -1418,7 +1441,7 @@
       }
       computeRound(roundNum);
       if (round.total > round.available) return 'Your allocated total exceeds the available budget for this month. Please reduce your allocations.';
-      if (!currentCarryoverEnabled() && round.total !== round.available) return 'In this version, you must allocate the full available budget for this month before continuing.';
+      if (!currentCarryoverEnabled() && round.total !== round.available) return 'Please allocate the full available budget for this month before continuing.';
       return '';
     }
 
