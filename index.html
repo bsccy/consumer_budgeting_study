@@ -529,22 +529,8 @@
     </div>
 
     <div id="screen-demographics" class="screen card">
-      <h2>About you</h2>
-      <p>Please answer the following questions. This information is collected for research purposes only and will remain anonymous.</p>
-
-      <div class="field">
-        <label for="demo-age">What is your age in years?</label>
-        <input id="demo-age" type="number" min="18" step="1" />
-      </div>
-
-      <div class="field">
-        <label>Your gender is:</label>
-        <div class="radio-group">
-          <label><input type="radio" name="demo-gender" value="Female" /> Female</label>
-          <label><input type="radio" name="demo-gender" value="Male" /> Male</label>
-          <label><input type="radio" name="demo-gender" value="Prefer not to say" /> Prefer not to say</label>
-        </div>
-      </div>
+      <h2>Background questions</h2>
+      <p>Please answer the following short background questions. This information is collected for research purposes only and will remain anonymous.</p>
 
       <div class="field">
         <label>Your highest level of education completed is:</label>
@@ -569,19 +555,6 @@
       </div>
 
       <div class="field">
-        <label>Your employment status is:</label>
-        <div class="radio-group">
-          <label><input type="radio" name="demo-employment" value="Student" /> Student</label>
-          <label><input type="radio" name="demo-employment" value="Employed (full-time)" /> Employed (full-time)</label>
-          <label><input type="radio" name="demo-employment" value="Employed (part-time)" /> Employed (part-time)</label>
-          <label><input type="radio" name="demo-employment" value="Unemployed" /> Unemployed</label>
-          <label><input type="radio" name="demo-employment" value="Retired" /> Retired</label>
-          <label><input type="radio" name="demo-employment" value="Other" /> Other</label>
-        </div>
-        <input id="demo-employment-other" class="hidden" type="text" placeholder="Please specify" style="margin-top:10px;" />
-      </div>
-
-      <div class="field">
         <label>Please click one of the following to indicate whether you consider that, relative to other people in the UK, your personal annual income is:</label>
         <div class="radio-group">
           <label><input type="radio" name="demo-income-relative-uk" value="Bottom third" /> In the bottom third</label>
@@ -589,25 +562,6 @@
           <label><input type="radio" name="demo-income-relative-uk" value="Top third" /> In the top third</label>
           <label><input type="radio" name="demo-income-relative-uk" value="Prefer not to say" /> Prefer not to say</label>
         </div>
-      </div>
-
-      <div class="field">
-        <label for="demo-residence">In which country do you currently live?</label>
-        <input id="demo-residence" type="text" />
-      </div>
-
-      <div class="field">
-        <label for="demo-nationality">What is your nationality?</label>
-        <input id="demo-nationality" type="text" />
-      </div>
-
-      <div class="field">
-        <label>In which country did you spend most of your childhood (ages 0–16)?</label>
-        <div class="radio-group">
-          <label><input type="radio" name="demo-childhood" value="United Kingdom" /> United Kingdom</label>
-          <label><input type="radio" name="demo-childhood" value="Other" /> Other</label>
-        </div>
-        <input id="demo-childhood-other" class="hidden" type="text" placeholder="Please specify" style="margin-top:10px;" />
       </div>
 
       <div class="field">
@@ -678,10 +632,9 @@
     };
 
     const PROLIFIC_CONFIG = {
-      // Fill this in after creating the Prolific study, or pass it through the URL as ?completionCode=XXXX.
       // Participants are redirected only after DataPipe submission succeeds.
-      completionCode: '',
-      completionURL: ''
+      completionCode: 'CXVO4M2Z',
+      completionURL: 'https://app.prolific.com/submissions/complete?cc=CXVO4M2Z'
     };
 
     function makeSubmissionStamp() {
@@ -690,7 +643,7 @@
       return `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
     }
 
-    const STORAGE_KEY = 'consumer_budgeting_study_v9';
+    const STORAGE_KEY = 'consumer_budgeting_study_v10';
     const CONDITION_COUNTER_KEY = 'consumer_budgeting_main_condition_counts_v4';
     const RATING_COUNTER_KEY = 'consumer_budgeting_rating_counts_v1';
     const RATING_TIMINGS = ['before', 'after'];
@@ -1091,17 +1044,9 @@
       attention: { pathPerception: '' },
       finlit: { q1: '', q2: '', q3: '' },
       demographics: {
-        age: '',
-        gender: '',
         education: '',
         econRelated: '',
-        employment: '',
-        employmentOther: '',
         incomeRelativeUK: '',
-        residenceCountry: '',
-        nationality: '',
-        childhoodCountry: '',
-        childhoodCountryOther: '',
         financialResponsibility: '',
         financialResponsibilityOther: '',
         boeTargetResponse: '',
@@ -1133,9 +1078,6 @@
       merged.attention = { ...fresh.attention, ...(parsed.attention || {}) };
       merged.finlit = { ...fresh.finlit, ...(parsed.finlit || {}) };
       merged.demographics = { ...fresh.demographics, ...(parsed.demographics || {}) };
-      if (!merged.demographics.gender && parsed.demographics && parsed.demographics.sex) {
-        merged.demographics.gender = parsed.demographics.sex;
-      }
       Object.assign(merged, makeParticipantMetadata(parsed));
       merged.end = { ...fresh.end, ...(parsed.end || {}) };
       return merged;
@@ -1489,30 +1431,18 @@
 
     function syncConditionalDemographicVisibility() {
       const education = state.demographics.education;
-      document.getElementById('econ-related-wrap').classList.toggle('hidden', !requiresEconRelated(education));
-
-      const employmentOther = state.demographics.employment === 'Other';
-      document.getElementById('demo-employment-other').classList.toggle('hidden', !employmentOther);
-
-      const childhoodOther = state.demographics.childhoodCountry === 'Other';
-      document.getElementById('demo-childhood-other').classList.toggle('hidden', !childhoodOther);
+      const econWrap = document.getElementById('econ-related-wrap');
+      if (econWrap) econWrap.classList.toggle('hidden', !requiresEconRelated(education));
 
       const finOther = state.demographics.financialResponsibility === 'Other';
-      document.getElementById('demo-finresp-other').classList.toggle('hidden', !finOther);
+      const finOtherInput = document.getElementById('demo-finresp-other');
+      if (finOtherInput) finOtherInput.classList.toggle('hidden', !finOther);
     }
 
     function renderDemographics() {
-      document.getElementById('demo-age').value = state.demographics.age;
-      document.querySelectorAll('input[name="demo-gender"]').forEach(input => input.checked = input.value === state.demographics.gender);
       document.querySelectorAll('input[name="demo-education"]').forEach(input => input.checked = input.value === state.demographics.education);
       document.querySelectorAll('input[name="demo-econrelated"]').forEach(input => input.checked = input.value === state.demographics.econRelated);
-      document.querySelectorAll('input[name="demo-employment"]').forEach(input => input.checked = input.value === state.demographics.employment);
-      document.getElementById('demo-employment-other').value = state.demographics.employmentOther;
       document.querySelectorAll('input[name="demo-income-relative-uk"]').forEach(input => input.checked = input.value === state.demographics.incomeRelativeUK);
-      document.getElementById('demo-residence').value = state.demographics.residenceCountry;
-      document.getElementById('demo-nationality').value = state.demographics.nationality;
-      document.querySelectorAll('input[name="demo-childhood"]').forEach(input => input.checked = input.value === state.demographics.childhoodCountry);
-      document.getElementById('demo-childhood-other').value = state.demographics.childhoodCountryOther;
       document.querySelectorAll('input[name="demo-finresp"]').forEach(input => input.checked = input.value === state.demographics.financialResponsibility);
       document.getElementById('demo-finresp-other').value = state.demographics.financialResponsibilityOther;
       document.querySelectorAll('input[name="boe-target-response"]').forEach(input => input.checked = input.value === state.demographics.boeTargetResponse);
@@ -1524,17 +1454,9 @@
 
     function validateDemographics() {
       const d = state.demographics;
-      if (!d.age || Number(d.age) < 18) return 'Please enter your age in years.';
-      if (!d.gender) return 'Please select your gender.';
       if (!d.education) return 'Please select your highest level of education completed.';
       if (requiresEconRelated(d.education) && !d.econRelated) return 'Please indicate whether your main field of study was related to economics, finance, or a closely related subject.';
-      if (!d.employment) return 'Please select your employment status.';
-      if (d.employment === 'Other' && !d.employmentOther.trim()) return 'Please specify your employment status.';
       if (!d.incomeRelativeUK) return 'Please answer the relative income question.';
-      if (!d.residenceCountry.trim()) return 'Please enter your current country of residence.';
-      if (!d.nationality.trim()) return 'Please enter your nationality.';
-      if (!d.childhoodCountry) return 'Please indicate where you spent most of your childhood.';
-      if (d.childhoodCountry === 'Other' && !d.childhoodCountryOther.trim()) return 'Please specify the country where you spent most of your childhood.';
       if (!d.financialResponsibility) return 'Please indicate your financial responsibility.';
       if (d.financialResponsibility === 'Other' && !d.financialResponsibilityOther.trim()) return 'Please specify your financial responsibility.';
       if (!d.boeTargetResponse) return 'Please answer the Bank of England inflation target question.';
@@ -1557,7 +1479,7 @@
           endMsg.innerHTML = '<div class="success">Submission succeeded. Your responses have been recorded. No Prolific completion URL is configured for this test link.</div>';
         }
       } else {
-        endMsg.innerHTML = '<div class="notice">When you are ready, click “Submit responses”. Please keep the page open until submission finishes. You will receive the completion code only after your data have been submitted successfully.</div>';
+        endMsg.innerHTML = '<div class="notice">When you are ready, click “Submit responses”. Please keep the page open until submission finishes. After successful submission, you will be redirected to Prolific to record completion.</div>';
       }
     }
 
@@ -1591,17 +1513,9 @@
         finlit_q1: state.finlit.q1,
         finlit_q2: state.finlit.q2,
         finlit_q3: state.finlit.q3,
-        age: state.demographics.age,
-        gender: state.demographics.gender,
         education: state.demographics.education,
         econ_related: state.demographics.econRelated,
-        employment: state.demographics.employment,
-        employment_other: state.demographics.employmentOther,
         income_relative_uk: state.demographics.incomeRelativeUK,
-        residence_country: state.demographics.residenceCountry,
-        nationality: state.demographics.nationality,
-        childhood_country: state.demographics.childhoodCountry,
-        childhood_country_other: state.demographics.childhoodCountryOther,
         financial_responsibility: state.demographics.financialResponsibility,
         financial_responsibility_other: state.demographics.financialResponsibilityOther,
         boe_target_response: state.demographics.boeTargetResponse,
@@ -1844,16 +1758,6 @@
         showScreen('screen-demographics');
       });
 
-      document.getElementById('demo-age').addEventListener('input', e => {
-        state.demographics.age = e.target.value;
-        saveState();
-      });
-      document.querySelectorAll('input[name="demo-gender"]').forEach(input => {
-        input.addEventListener('change', e => {
-          state.demographics.gender = e.target.value;
-          saveState();
-        });
-      });
       document.querySelectorAll('input[name="demo-education"]').forEach(input => {
         input.addEventListener('change', e => {
           state.demographics.education = e.target.value;
@@ -1868,43 +1772,11 @@
           saveState();
         });
       });
-      document.querySelectorAll('input[name="demo-employment"]').forEach(input => {
-        input.addEventListener('change', e => {
-          state.demographics.employment = e.target.value;
-          if (e.target.value !== 'Other') state.demographics.employmentOther = '';
-          syncConditionalDemographicVisibility();
-          saveState();
-        });
-      });
-      document.getElementById('demo-employment-other').addEventListener('input', e => {
-        state.demographics.employmentOther = e.target.value;
-        saveState();
-      });
       document.querySelectorAll('input[name="demo-income-relative-uk"]').forEach(input => {
         input.addEventListener('change', e => {
           state.demographics.incomeRelativeUK = e.target.value;
           saveState();
         });
-      });
-      document.getElementById('demo-residence').addEventListener('input', e => {
-        state.demographics.residenceCountry = e.target.value;
-        saveState();
-      });
-      document.getElementById('demo-nationality').addEventListener('input', e => {
-        state.demographics.nationality = e.target.value;
-        saveState();
-      });
-      document.querySelectorAll('input[name="demo-childhood"]').forEach(input => {
-        input.addEventListener('change', e => {
-          state.demographics.childhoodCountry = e.target.value;
-          if (e.target.value !== 'Other') state.demographics.childhoodCountryOther = '';
-          syncConditionalDemographicVisibility();
-          saveState();
-        });
-      });
-      document.getElementById('demo-childhood-other').addEventListener('input', e => {
-        state.demographics.childhoodCountryOther = e.target.value;
-        saveState();
       });
       document.querySelectorAll('input[name="demo-finresp"]').forEach(input => {
         input.addEventListener('change', e => {
